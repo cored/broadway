@@ -66,3 +66,13 @@ func TestFindByID(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "created", instance.PlaybookID)
 }
+
+func TestFindByPlaybookID(t *testing.T) {
+	repo := NewInstanceRepo(store.New())
+	i := Instance{PlaybookID: "created", ID: "222"}
+	repo.Save(i)
+
+	instances := repo.FindByPlaybookID(i.PlaybookID)
+	assert.NotNil(t, instances)
+	assert.Equal(t, 1, len(instances))
+}
