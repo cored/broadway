@@ -52,6 +52,7 @@ func TestAllWithPlaybookID(t *testing.T) {
 		t.Log(err)
 	}
 
-	instances := service.AllWithPlaybookID(i.PlaybookID)
+	instances, err := service.AllWithPlaybookID(i.PlaybookID)
+	assert.Nil(t, err)
 	assert.NotEmpty(t, instances)
 }

@@ -72,15 +72,18 @@ func TestFindByPlaybookID(t *testing.T) {
 	i := Instance{PlaybookID: "created", ID: "222"}
 	repo.Save(i)
 
-	instances := repo.FindByPlaybookID(i.PlaybookID)
-	assert.NotNil(t, instances)
-	assert.Equal(t, 1, len(instances))
+	instances, err := repo.FindByPlaybookID(i.PlaybookID)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, instances)
 }
 
 func TestFindByPlaybookIDNoExistent(t *testing.T) {
-	repo := NewInstanceRepo(store.New())
+	repo := NewInstanceRepo(&DummyStore{})
 
-	instances := repo.FindByPlaybookID("notcreated")
-	assert.NotNil(t, instances)
-	assert.Equal(t, 0, len(instances))
+	instances, err := repo.FindByPlaybookID("notcreated")
+
+	assert.NotNil(t, err)
+	assert.Empty(t, instances)
+
+	assert.Equal(t, "Saved data for this instance is malformed", err.Error())
 }

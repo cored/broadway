@@ -12,7 +12,7 @@ type InstanceRepository interface {
 	Save(instance Instance) error
 	FindByPath(path string) (Instance, error)
 	FindByID(playbookID, ID string) (Instance, error)
-	FindByPlaybookID(playbookID string) []Instance
+	FindByPlaybookID(playbookID string) ([]Instance, error)
 }
 
 // InstanceRepo handles persistence logic
@@ -75,17 +75,17 @@ func (ir *InstanceRepo) FindByID(playbookID, ID string) (Instance, error) {
 	return ir.FindByPath(path)
 }
 
-func (ir *InstanceRepo) FindByPlaybookID(playbookID string) []Instance {
+func (ir *InstanceRepo) FindByPlaybookID(playbookID string) ([]Instance, error) {
 	data := ir.store.Values(fmt.Sprintf("/broadway/instances/%s", playbookID))
 	instances := []Instance{}
 	for _, value := range data {
 		var instance Instance
 		err := json.Unmarshal([]byte(value), &instance)
 		if err != nil {
-			return instances
+			return instances, InstanceMalformedError{}
 		}
 		instances = append(instances, instance)
 	}
 
-	return instances
+	return instances, nil
 }

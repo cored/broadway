@@ -1,9 +1,15 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/namely/broadway/broadway"
 	"github.com/namely/broadway/store"
 )
+
+func (e InstanceServiceError) Error() string {
+	return fmt.Sprintf("Instance service error: %s", e.message)
+}
 
 // InstanceService definition
 type InstanceService struct {
@@ -31,6 +37,6 @@ func (is *InstanceService) Show(playbookID, ID string) (broadway.Instance, error
 	return instance, nil
 }
 
-func (is *InstanceService) AllWithPlaybookID(playbookID string) []broadway.Instance {
+func (is *InstanceService) AllWithPlaybookID(playbookID string) ([]broadway.Instance, error) {
 	return is.repo.FindByPlaybookID(playbookID)
 }
