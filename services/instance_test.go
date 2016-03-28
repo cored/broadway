@@ -41,3 +41,15 @@ func TestShowMissingInstance(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Empty(t, instance.PlaybookID, "PlaybookID should be empty")
 }
+
+func TestAllWithPlaybookID(t *testing.T) {
+	store := store.New()
+	service := NewInstanceService(store)
+
+	i := broadway.Instance{PlaybookID: "test", ID: "222"}
+	err := service.Create(i)
+
+	instances, err := service.AllWithPlaybookID(i.PlaybookID)
+	assert.Nil(t, err)
+	assert.Equal(t, len(instances), 1)
+}

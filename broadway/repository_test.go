@@ -76,3 +76,11 @@ func TestFindByPlaybookID(t *testing.T) {
 	assert.NotNil(t, instances)
 	assert.Equal(t, 1, len(instances))
 }
+
+func TestFindByPlaybookIDNoExistent(t *testing.T) {
+	repo := NewInstanceRepo(store.New())
+
+	instances := repo.FindByPlaybookID("notcreated")
+	assert.NotNil(t, instances)
+	assert.Equal(t, 0, len(instances))
+}

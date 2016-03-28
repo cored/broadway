@@ -30,3 +30,7 @@ func (is *InstanceService) Show(playbookID, ID string) (broadway.Instance, error
 	}
 	return instance, nil
 }
+
+func (is *InstanceService) AllWithPlaybookID(playbookID string) []broadway.Instance {
+	return is.repo.FindByPlaybookID(playbookID)
+}

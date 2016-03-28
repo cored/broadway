@@ -162,24 +162,14 @@ func TestGetInstancesWithFullPlaybook(t *testing.T) {
 }
 
 func TestGetInstancesWithEmptyPlaybook(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	req, err := http.NewRequest("GET", "/instances/testPlaybookEmpty", nil)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	mem := store.New()
-
-	server := New(mem).Handler()
-	server.ServeHTTP(w, req)
+	req, w := testutils.GetRequest(t, "/instances/testPlaybookFull")
+	makeRequest(req, w)
 
 	assert.Equal(t, http.StatusNoContent, w.Code, "Response code should be 204 No Content")
 
 	var okResponse []instance.Attributes
 
-	err = json.Unmarshal(w.Body.Bytes(), &okResponse)
+	err := json.Unmarshal(w.Body.Bytes(), &okResponse)
 	if err != nil {
 		t.Error(err)
 		return
