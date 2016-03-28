@@ -48,8 +48,10 @@ func TestAllWithPlaybookID(t *testing.T) {
 
 	i := broadway.Instance{PlaybookID: "test", ID: "222"}
 	err := service.Create(i)
+	if err != nil {
+		t.Log(err)
+	}
 
-	instances, err := service.AllWithPlaybookID(i.PlaybookID)
-	assert.Nil(t, err)
-	assert.Equal(t, len(instances), 1)
+	instances := service.AllWithPlaybookID(i.PlaybookID)
+	assert.NotEmpty(t, instances)
 }
