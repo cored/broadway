@@ -18,14 +18,20 @@ func JsonFromMap(t *testing.T, data map[string]interface{}) []byte {
 }
 
 func PostRequest(t *testing.T, route string, data []byte) (*http.Request, *httptest.ResponseRecorder) {
-	w := httptest.NewRecorder()
+	return buildRequest(t, "POST", route, data)
+}
 
-	req, err := http.NewRequest("POST", route, bytes.NewBuffer(data))
+func GetRequest(t *testing.T, route string) (*http.Request, *httptest.ResponseRecorder) {
+	return buildRequest(t, "GET", route, []byte{})
+}
+
+func buildRequest(t *testing.T, action string, route string, data []byte) (*http.Request, *httptest.ResponseRecorder) {
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(action, route, bytes.NewBuffer(data))
 	if err != nil {
 		t.Error(err)
 		return req, w
 	}
 	req.Header.Add("Content-Type", "application/json")
-
 	return req, w
 }

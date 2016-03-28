@@ -10,7 +10,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/namely/broadway/broadway"
 	"github.com/namely/broadway/instance"
+	"github.com/namely/broadway/services"
 	"github.com/namely/broadway/store"
 	"github.com/namely/broadway/testutils"
 
@@ -89,7 +91,7 @@ func TestCreateInstanceWithInvalidAttributes(t *testing.T) {
 
 		var errorResponse map[string]string
 
-		err = json.Unmarshal(w.Body.Bytes(), &errorResponse)
+		err := json.Unmarshal(w.Body.Bytes(), &errorResponse)
 		if err != nil {
 			t.Error(err)
 			return
@@ -100,29 +102,15 @@ func TestCreateInstanceWithInvalidAttributes(t *testing.T) {
 }
 
 func TestGetInstanceWithValidPath(t *testing.T) {
-	w := httptest.NewRecorder()
-	mem := store.New()
+	store := store.New()
+	i := broadway.Instance{PlaybookID: "foo", ID: "doesExist"}
+	service := services.NewInstanceService(store)
+	err := service.Create(i)
 
-	i := instance.New(mem, &instance.Attributes{
-		PlaybookID: "foo",
-		ID:         "doesExist",
-	})
-	err := i.Save()
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	req, w := testutils.GetRequest(t, "/instance/foo/doesExist")
+	makeRequest(req, w)
 
-	req, err := http.NewRequest("GET", "/instance/foo/doesExist", nil)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	server := New(mem).Handler()
-	server.ServeHTTP(w, req)
-
-	assert.Equal(t, w.Code, http.StatusOK)
+	assert.Equal(t, http.StatusOK, w.Code)
 
 	var iResponse map[string]string
 
