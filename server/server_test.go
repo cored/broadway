@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -123,24 +122,14 @@ func TestGetInstanceWithValidPath(t *testing.T) {
 }
 
 func TestGetInstanceWithInvalidPath(t *testing.T) {
-	w := httptest.NewRecorder()
-
-	req, err := http.NewRequest("GET", "/instance/foo/bar", nil)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	mem := store.New()
-
-	server := New(mem).Handler()
-	server.ServeHTTP(w, req)
+	req, w := testutils.GetRequest(t, "/instance/foo/bar")
+	makeRequest(req, w)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
 	var errorResponse map[string]string
 
-	err = json.Unmarshal(w.Body.Bytes(), &errorResponse)
+	err := json.Unmarshal(w.Body.Bytes(), &errorResponse)
 	if err != nil {
 		t.Error(err)
 		return
@@ -149,40 +138,18 @@ func TestGetInstanceWithInvalidPath(t *testing.T) {
 }
 
 func TestGetInstancesWithFullPlaybook(t *testing.T) {
-	w := httptest.NewRecorder()
-	mem := store.New()
+	testInstance1 := broadway.Instance{PlaybookID: "testPlaybookFull", ID: "testInstance1"}
+	testInstance2 := broadway.Instance{PlaybookID: "testPlaybookFull", ID: "testInstance2"}
+	service := services.NewInstanceService(store.New())
+	err := service.Create(testInstance1)
+	err = service.Create(testInstance2)
 
-	testInstance1 := instance.New(mem, &instance.Attributes{
-		PlaybookID: "testPlaybookFull",
-		ID:         "testInstance1",
-	})
-	err := testInstance1.Save()
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	testInstance2 := instance.New(mem, &instance.Attributes{
-		PlaybookID: "testPlaybookFull",
-		ID:         "testInstance2",
-	})
-	err = testInstance2.Save()
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	req, err := http.NewRequest("GET", "/instances/testPlaybookFull", nil)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	server := New(mem).Handler()
-	server.ServeHTTP(w, req)
+	req, w := testutils.GetRequest(t, "/instances/testPlaybookFull")
+	makeRequest(req, w)
 
 	assert.Equal(t, http.StatusOK, w.Code, "Response code should be 200 OK")
 
-	log.Println(w.Body.String())
-	var okResponse []instance.Attributes
+	var okResponse []broadway.Instance
 
 	err = json.Unmarshal(w.Body.Bytes(), &okResponse)
 	if err != nil {
