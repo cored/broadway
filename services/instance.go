@@ -1,15 +1,9 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/namely/broadway/broadway"
 	"github.com/namely/broadway/store"
 )
-
-func (e InstanceServiceError) Error() string {
-	return fmt.Sprintf("Instance service error: %s", e.message)
-}
 
 // InstanceService definition
 type InstanceService struct {

@@ -20,19 +20,19 @@ type InstanceRepo struct {
 	store store.Store
 }
 
-// InstanceNotFoundError instance not found error
-type InstanceNotFoundError struct {
+// NotFound instance not found error
+type NotFound struct {
 	path string
 }
 
-func (e InstanceNotFoundError) Error() string {
+func (e NotFound) Error() string {
 	return fmt.Sprintf("Instance with path: %s was not found", e.path)
 }
 
-// InstanceMalformedError instance saved with malformed data
-type InstanceMalformedError struct{}
+// MalformedSavedData malformed saved data
+type MalformedSavedData struct{}
 
-func (e InstanceMalformedError) Error() string {
+func (e MalformedSavedData) Error() string {
 	return "Saved data for this instance is malformed"
 }
 
@@ -60,11 +60,11 @@ func (ir *InstanceRepo) FindByPath(path string) (Instance, error) {
 
 	i := ir.store.Value(path)
 	if i == "" {
-		return instance, InstanceNotFoundError{path}
+		return instance, NotFound{path}
 	}
 	err := json.Unmarshal([]byte(i), &instance)
 	if err != nil {
-		return instance, InstanceMalformedError{}
+		return instance, MalformedSavedData{}
 	}
 	return instance, nil
 }
@@ -82,7 +82,7 @@ func (ir *InstanceRepo) FindByPlaybookID(playbookID string) ([]Instance, error) 
 		var instance Instance
 		err := json.Unmarshal([]byte(value), &instance)
 		if err != nil {
-			return instances, InstanceMalformedError{}
+			return instances, MalformedSavedData{}
 		}
 		instances = append(instances, instance)
 	}
