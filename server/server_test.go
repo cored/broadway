@@ -81,25 +81,9 @@ func TestCreateInstanceWithInvalidAttributes(t *testing.T) {
 	}
 
 	for _, i := range invalidRequests {
-		w := httptest.NewRecorder()
-		rbody, err := json.Marshal(i)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-
-		req, err := http.NewRequest("POST", "/instances", bytes.NewBuffer(rbody))
-		if err != nil {
-			t.Error(err)
-			return
-		}
-
-		req.Header.Add("Content-Type", "application/json")
-
-		mem := store.New()
-
-		server := New(mem).Handler()
-		server.ServeHTTP(w, req)
+		rbody := testutils.JsonFromMap(t, i)
+		req, w := testutils.PostRequest(t, "/instances", rbody)
+		makeRequest(req, w)
 
 		assert.Equal(t, http.StatusBadRequest, w.Code, "Expected POST /instances with wrong attributes to be 400")
 
