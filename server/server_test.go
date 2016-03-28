@@ -19,6 +19,13 @@ import (
 
 var testToken = "BroadwayTestToken"
 
+func makeRequest(req *http.Request, w *httptest.ResponseRecorder) {
+	mem := store.New()
+
+	server := New(mem).Handler()
+	server.ServeHTTP(w, req)
+}
+
 func TestServerNew(t *testing.T) {
 	err := os.Setenv(slackTokenENV, testToken)
 	if err != nil {
@@ -46,7 +53,6 @@ func TestServerNew(t *testing.T) {
 }
 
 func TestInstanceCreateWithValidAttributes(t *testing.T) {
-	w := httptest.NewRecorder()
 
 	i := map[string]interface{}{
 		"playbook_id": "test",
@@ -57,18 +63,8 @@ func TestInstanceCreateWithValidAttributes(t *testing.T) {
 	}
 
 	rbody := testutils.JsonFromMap(t, i)
-
-	req, err := http.NewRequest("POST", "/instances", bytes.NewBuffer(rbody))
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	req.Header.Add("Content-Type", "application/json")
-
-	mem := store.New()
-
-	server := New(mem).Handler()
-	server.ServeHTTP(w, req)
+	req, w := testutils.PostRequest(t, "/instances", rbody)
+	makeRequest(req, w)
 
 	assert.Equal(t, http.StatusCreated, w.Code, "Response code should be 201")
 }
