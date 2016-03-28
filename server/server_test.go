@@ -12,6 +12,7 @@ import (
 
 	"github.com/namely/broadway/instance"
 	"github.com/namely/broadway/store"
+	"github.com/namely/broadway/testutils"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -44,15 +45,6 @@ func TestServerNew(t *testing.T) {
 
 }
 
-func jsonFromMap(t *testing.T, data map[string]interface{}) []byte {
-	rbody, err := json.Marshal(data)
-	if err != nil {
-		t.Error(err)
-		return []byte{}
-	}
-	return rbody
-}
-
 func TestInstanceCreateWithValidAttributes(t *testing.T) {
 	w := httptest.NewRecorder()
 
@@ -64,7 +56,7 @@ func TestInstanceCreateWithValidAttributes(t *testing.T) {
 		},
 	}
 
-	rbody := jsonFromMap(t, i)
+	rbody := testutils.JsonFromMap(t, i)
 
 	req, err := http.NewRequest("POST", "/instances", bytes.NewBuffer(rbody))
 	if err != nil {
