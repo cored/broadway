@@ -144,47 +144,21 @@ func TestGetStatusFailures(t *testing.T) {
 	}{
 		{
 			"GET",
-			"/status",
-			400,
-			"Use GET /status/yourPlaybookId/yourInstanceId",
-		},
-		{
-			"GET",
-			"/status/goodPlaybook",
-			400,
-			"Use GET /status/yourPlaybookId/yourInstanceId",
-		},
-		/* TODO: Store and look up playbooks
-		{
-			"GET",
-			"/status/badPlaybook/goodInstance",
-			404,
-			"Playbook badPlaybook not found",
-		},
-		*/
-		{
-			"GET",
 			"/status/goodPlaybook/badInstance",
 			404,
 			"Not Found",
 		},
 	}
 
-	mem := store.New()
-	server := New(mem).Handler()
-
 	for _, i := range invalidRequests {
-		w := httptest.NewRecorder()
-		req, err := http.NewRequest("GET", i.path, nil)
-		assert.Nil(t, err)
-
-		server.ServeHTTP(w, req)
+		req, w := testutils.GetRequest(t, i.path)
+		makeRequest(req, w)
 
 		assert.Equal(t, i.errCode, w.Code)
 
 		var errorResponse map[string]string
 
-		err = json.Unmarshal(w.Body.Bytes(), &errorResponse)
+		err := json.Unmarshal(w.Body.Bytes(), &errorResponse)
 		assert.Nil(t, err)
 		assert.Contains(t, errorResponse["error"], i.errMsg)
 	}

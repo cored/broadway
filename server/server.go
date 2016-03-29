@@ -61,8 +61,6 @@ func (s *Server) setupHandlers() {
 	s.engine.POST("/instances", s.createInstance)
 	s.engine.GET("/instance/:playbookID/:instanceID", s.getInstance)
 	s.engine.GET("/instances/:playbookID", s.getInstances)
-	s.engine.GET("/status", s.getStatus400)
-	s.engine.GET("/status/:playbookID", s.getStatus400)
 	s.engine.GET("/status/:playbookID/:instanceID", s.getStatus)
 	s.engine.GET("/command", s.getCommand)
 }
@@ -101,7 +99,7 @@ func (s *Server) getInstance(c *gin.Context) {
 
 	if err != nil {
 		switch err.(type) {
-		case broadway.NotFound
+		case broadway.NotFound:
 			c.JSON(http.StatusNotFound, NotFoundError)
 			return
 		default:
@@ -123,19 +121,13 @@ func (s *Server) getInstances(c *gin.Context) {
 	return
 }
 
-func (s *Server) getStatus400(c *gin.Context) {
-	c.JSON(http.StatusBadRequest, ErrorResponse{
-		"error": "Use GET /status/yourPlaybookId/yourInstanceId",
-	})
-}
-
 func (s *Server) getStatus(c *gin.Context) {
 	service := services.NewInstanceService(s.store)
 	instance, err := service.Show(c.Param("playbookID"), c.Param("instanceID"))
 
 	if err != nil {
 		switch err.(type) {
-		case broadway.InstanceNotFoundError:
+		case broadway.NotFound:
 			c.JSON(http.StatusNotFound, NotFoundError)
 			return
 		default:
