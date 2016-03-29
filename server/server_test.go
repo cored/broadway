@@ -165,24 +165,18 @@ func TestGetStatusFailures(t *testing.T) {
 
 }
 func TestGetStatusWithGoodPath(t *testing.T) {
-	mem := store.New()
-	testInstance1 := instance.New(mem, &instance.Attributes{
+	testInstance1 := broadway.Instance{
 		PlaybookID: "goodPlaybook",
 		ID:         "goodInstance",
-		Status:     instance.StatusDeployed,
-	})
-	err := testInstance1.Save()
+		Status:     instance.StatusDeployed}
+	service := services.NewInstanceService(store.New())
+	err := service.Create(testInstance1)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	w := httptest.NewRecorder()
-
-	req, err := http.NewRequest("GET", "/status/goodPlaybook/goodInstance", nil)
-	assert.Nil(t, err)
-
-	server := New(mem).Handler()
-	server.ServeHTTP(w, req)
+	req, w := testutils.GetRequest(t, "/status/goodPlaybook/goodInstance")
+	makeRequest(req, w)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
