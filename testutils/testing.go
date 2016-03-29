@@ -8,7 +8,8 @@ import (
 	"testing"
 )
 
-func JsonFromMap(t *testing.T, data map[string]interface{}) []byte {
+// JSONFromMap creates a json representation from a map
+func JSONFromMap(t *testing.T, data map[string]interface{}) []byte {
 	rbody, err := json.Marshal(data)
 	if err != nil {
 		t.Error(err)
@@ -17,10 +18,12 @@ func JsonFromMap(t *testing.T, data map[string]interface{}) []byte {
 	return rbody
 }
 
+// PostRequest createa a post request for sending json
 func PostRequest(t *testing.T, route string, data []byte) (*http.Request, *httptest.ResponseRecorder) {
 	return buildRequest(t, "POST", route, data)
 }
 
+// GetRequest creates a get request
 func GetRequest(t *testing.T, route string) (*http.Request, *httptest.ResponseRecorder) {
 	return buildRequest(t, "GET", route, []byte{})
 }
