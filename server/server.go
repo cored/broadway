@@ -1,9 +1,11 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/namely/broadway/deployment"
 	"github.com/namely/broadway/instance"
@@ -29,6 +31,8 @@ type Server struct {
 // slackTokenENV is the name of an environment variable. Set the value to match
 // Slack's given custom command token.
 const slackTokenENV string = "SLACK_VERIFICATION_TOKEN"
+const commandHint string = `/broadway help: This message
+/broadway deploy myPlaybookID myInstanceID: Deploy a new instance`
 
 // ErrorResponse represents a JSON response to be returned in failure cases
 type ErrorResponse map[string]string
@@ -200,27 +204,59 @@ func (s *Server) postCommand(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, UnauthorizedError)
 		return
 	}
-	if form.Text == "help" {
-		c.String(http.StatusOK, "/broadway status playbook1 instance1: Check the status of instance1\n /broadway deploy playbook1 instance1: Deploy instance1")
-		return
-	}
-	output, err := helperRunCommand(form.Text)
+	code, output, err := helperRunCommand(s, form.Text)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, InternalError)
+		log.Println(err)
+		c.JSON(code, InternalError)
 		return
 	}
-	c.String(http.StatusOK, output)
+	c.String(code, output)
 	return
 }
 
-func helperRunCommand(text string) (string, error) {
-	return "unimplemented :sadpanda:", nil
+// helperRunCommand takes the plaintext command, minus the leading /broadway
+// trigger, and returns statusCode, message, error for output to the user
+func helperRunCommand(s *Server, text string) (int, string, error) {
+	commands := strings.Split(text, " ")
+	switch {
+	case len(commands) == 0:
+		return http.StatusOK, commandHint, nil
+	case commands[0] == "help":
+		return http.StatusOK, commandHint, nil
+
+	case commands[0] == "deploy":
+		if len(commands) < 3 {
+			return http.StatusOK, commandHint, nil
+		}
+
+		_, err := helperDeployInstance(s, commands[1], commands[2])
+		if err != nil {
+			return http.StatusInternalServerError, "Deployment failed", err
+		}
+		msg := fmt.Sprintf("Instance %s/%s deployed", commands[1], commands[2])
+		return http.StatusOK, msg, nil
+	default:
+		return http.StatusNotImplemented, "unimplemented :sadpanda:", nil
+	}
+}
+
+func helperDeployInstance(s *Server, pID string, ID string) (*instance.Instance, error) {
+	is := services.NewInstanceService(s.store)
+	i, err := is.Show(pID, ID)
+	if err != nil {
+		return nil, err
+	}
+
+	ds := services.NewDeploymentService(s.store, s.playbooks, s.manifests)
+	err = ds.Deploy(i)
+	if err != nil {
+		return nil, err
+	}
+	return i, nil
 }
 
 func (s *Server) deployInstance(c *gin.Context) {
-	service := services.NewInstanceService(s.store)
-	i, err := service.Show(c.Param("playbookID"), c.Param("instanceID"))
-
+	i, err := helperDeployInstance(s, c.Param("playbookID"), c.Param("instanceID"))
 	if err != nil {
 		log.Println(err)
 		switch err.(type) {
@@ -232,15 +268,5 @@ func (s *Server) deployInstance(c *gin.Context) {
 			return
 		}
 	}
-
-	deployService := services.NewDeploymentService(s.store, s.playbooks, s.manifests)
-
-	err = deployService.Deploy(i)
-	if err != nil {
-		log.Println(err)
-		c.JSON(http.StatusInternalServerError, InternalError)
-		return
-	}
-
 	c.JSON(http.StatusOK, i)
 }

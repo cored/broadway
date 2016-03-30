@@ -256,6 +256,23 @@ func TestPostCommandHelp(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code, "Expected /broadway help to be 200")
 	assert.Contains(t, w.Body.String(), "/broadway", "Expected help message to contain /broadway")
 }
+func TestPostCommandDeployBad(t *testing.T) {
+	if err := os.Setenv(slackTokenENV, testToken); err != nil {
+		t.Fatal(err)
+	}
+	w, server := helperSetupServer()
+	req, _ := http.NewRequest("POST", "/command", nil)
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	form := url.Values{}
+	form.Set("token", testToken)
+	form.Set("command", "/broadway")
+	form.Set("text", "deploy foo")
+	req.PostForm = form
+
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code, "Expected /broadway deploy foo to be 200")
+	assert.Contains(t, w.Body.String(), "/broadway deploy myPlaybookID myInstanceID", "Expected help message to contain /broadway")
+}
 
 func TestDeployMissing(t *testing.T) {
 	mem := store.New()
