@@ -8,30 +8,42 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNotifyWhenInstanceGetsDeployed(t *testing.T) {
-	instance := &broadway.Instance{
-		PlaybookID: "mine",
-		ID:         "pr001",
-		Status:     "deployed",
+func TestNotify(t *testing.T) {
+	testcases := []struct {
+		Scenario     string
+		Instance     *broadway.Instance
+		SlackPayload *SlackPayload
+		Expected     string
+	}{
+		{
+			"Deployed instances",
+			&broadway.Instance{PlaybookID: "mine", ID: "pr001", Status: "deployed"},
+			&SlackPayload{
+				Token:       "mytoken",
+				TeamID:      "T0001",
+				TeamDomain:  "example",
+				ChannelID:   "C2147483705",
+				ChannelName: "test",
+				UserID:      "U2147483697",
+				UserName:    "Steve",
+				Command:     "/broadway deploy mine pr001",
+				Text:        "94070",
+				ResponseUrl: "https://hooks.slack.com/commands/1234/5678",
+			},
+			"mine pr001 Steve was deployed",
+		},
 	}
-	store := store.New()
-	repo := broadway.NewInstanceRepo(store)
-	repo.Save(instance)
 
-	slackPayload := SlackPayload{
-		Token:       "mytoken",
-		TeamID:      "T0001",
-		TeamDomain:  "example",
-		ChannelID:   "C2147483705",
-		ChannelName: "test",
-		UserID:      "U2147483697",
-		UserName:    "Steve",
-		Command:     "/broadway deploy mine pr001",
-		Text:        "94070",
-		ResponseUrl: "https://hooks.slack.com/commands/1234/5678",
+	store := store.New()
+	serviceCreator := NewInstanceService(store)
+
+	for _, testcase := range testcases {
+		err := serviceCreator.Create(testcase.Instance)
+		assert.Nil(t, err)
+		notifier := NewSlackDeploymentNotifier(testcase.SlackPayload, store)
+		notification, err := notifier.Notify()
+
+		assert.Nil(t, err)
+		assert.Equal(t, testcase.Expected, notification, testcase.Scenario)
 	}
-	notifier := NewSlackDeploymentNotifier(slackPayload, store)
-	notification, err := notifier.Notify()
-	assert.Nil(t, err)
-	assert.Equal(t, notification, "mine pr001 Steve was deployed")
 }
