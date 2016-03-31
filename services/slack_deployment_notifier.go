@@ -43,8 +43,9 @@ func (sdn *SlackDeploymentNotifier) Notify() (string, error) {
 
 	instance, err := sdn.Repo.FindByID(playbookId, id)
 	if err != nil {
+		return "", err
 	}
 
-	message := fmt.Sprintf("%s %s %s was %s", playbookId, id, sdn.SlackPayload.UserName, instance.Status)
+	message := fmt.Sprintf("%s: %s-%s %s", sdn.SlackPayload.UserName, playbookId, id, instance.Status)
 	return message, nil
 }
