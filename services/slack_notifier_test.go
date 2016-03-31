@@ -30,7 +30,7 @@ func TestNotify(t *testing.T) {
 				Text:        "deploy mine pr001",
 				ResponseUrl: "https://hooks.slack.com/commands/1234/5678",
 			},
-			"mine pr001 Steve was deployed",
+			"Steve: mine-pr001 deployed",
 		},
 		{
 			"Not deployed instance",
@@ -47,7 +47,7 @@ func TestNotify(t *testing.T) {
 				Text:        "deploy mine pr001",
 				ResponseUrl: "https://hooks.slack.com/commands/1234/5678",
 			},
-			"mine pr001 Steve was not deployed",
+			"Steve: mine-pr001 error",
 		},
 	}
 

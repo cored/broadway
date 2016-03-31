@@ -23,7 +23,7 @@ const (
 	// StatusDeleting represents an instance that has begun deltion
 	StatusDeleting = "deleting"
 	// StatusError represents an instance that broke
-	StatusError = "not deployed"
+	StatusError = "error"
 )
 
 // JSON instance representation
