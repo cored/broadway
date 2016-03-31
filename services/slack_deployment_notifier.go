@@ -28,10 +28,10 @@ func (sp *SlackPayload) InstanceInfoFromCommand() (playbookID, id string) {
 
 type SlackDeploymentNotifier struct {
 	Repo         *broadway.InstanceRepo
-	SlackPayload SlackPayload
+	SlackPayload *SlackPayload
 }
 
-func NewSlackDeploymentNotifier(slackPayload SlackPayload, store store.Store) *SlackDeploymentNotifier {
+func NewSlackDeploymentNotifier(slackPayload *SlackPayload, store store.Store) *SlackDeploymentNotifier {
 	return &SlackDeploymentNotifier{
 		SlackPayload: slackPayload,
 		Repo:         broadway.NewInstanceRepo(store),
