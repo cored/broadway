@@ -22,8 +22,8 @@ type SlackPayload struct {
 }
 
 func (sp *SlackPayload) InstanceInfoFromCommand() (playbookID, id string) {
-	parsedCommand := strings.Split(sp.Command, " ")
-	return parsedCommand[2], parsedCommand[3]
+	parsedCommand := strings.Split(sp.Text, " ")
+	return parsedCommand[1], parsedCommand[2]
 }
 
 type SlackDeploymentNotifier struct {
@@ -40,7 +40,11 @@ func NewSlackDeploymentNotifier(slackPayload *SlackPayload, store store.Store) *
 
 func (sdn *SlackDeploymentNotifier) Notify() (string, error) {
 	playbookId, id := sdn.SlackPayload.InstanceInfoFromCommand()
-	message := fmt.Sprintf("%s %s %s was deployed", playbookId, id, sdn.SlackPayload.UserName)
 
+	instance, err := sdn.Repo.FindByID(playbookId, id)
+	if err != nil {
+	}
+
+	message := fmt.Sprintf("%s %s %s was %s", playbookId, id, sdn.SlackPayload.UserName, instance.Status)
 	return message, nil
 }

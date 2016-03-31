@@ -16,7 +16,7 @@ func TestNotify(t *testing.T) {
 		Expected     string
 	}{
 		{
-			"Deployed instances",
+			"Deployed instance",
 			&broadway.Instance{PlaybookID: "mine", ID: "pr001", Status: "deployed"},
 			&SlackPayload{
 				Token:       "mytoken",
@@ -26,11 +26,28 @@ func TestNotify(t *testing.T) {
 				ChannelName: "test",
 				UserID:      "U2147483697",
 				UserName:    "Steve",
-				Command:     "/broadway deploy mine pr001",
-				Text:        "94070",
+				Command:     "/broadway",
+				Text:        "deploy mine pr001",
 				ResponseUrl: "https://hooks.slack.com/commands/1234/5678",
 			},
 			"mine pr001 Steve was deployed",
+		},
+		{
+			"Not deployed instance",
+			&broadway.Instance{PlaybookID: "mine", ID: "pr001", Status: broadway.StatusError},
+			&SlackPayload{
+				Token:       "mytoken",
+				TeamID:      "T0001",
+				TeamDomain:  "example",
+				ChannelID:   "C2147483705",
+				ChannelName: "test",
+				UserID:      "U2147483697",
+				UserName:    "Steve",
+				Command:     "/broadway",
+				Text:        "deploy mine pr001",
+				ResponseUrl: "https://hooks.slack.com/commands/1234/5678",
+			},
+			"mine pr001 Steve was not deployed",
 		},
 	}
 
