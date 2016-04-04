@@ -10,27 +10,24 @@ import (
 func TestSlackNotification(t *testing.T) {
 	testcases := []struct {
 		Scenario string
-		Owner    SlackCommandOwner
 		Instance *instance.Instance
 		Expected string
 	}{
 		{
 			"Deployed instance",
-			SlackCommandOwner("Steve"),
 			&instance.Instance{PlaybookID: "mine", ID: "pr001", Status: instance.StatusDeployed},
-			"Steve: mine-pr001 deployed",
+			"mine-pr001 deployed",
 		},
 		{
 			"Not deployed instance",
-			SlackCommandOwner("Bob"),
 			&instance.Instance{PlaybookID: "mine", ID: "pr001", Status: instance.StatusError},
-			"Bob: mine-pr001 error",
+			"mine-pr001 error",
 		},
 	}
 
 	for _, testcase := range testcases {
-		slackNotification := NewSlackNotification(testcase.Instance, testcase.Owner)
+		slackNotification := NewSlackNotification(testcase.Instance)
 
-		assert.Equal(t, testcase.Expected, slackNotification.String(), testcase.Scenario)
+		assert.Equal(t, testcase.Expected, slackNotification, testcase.Scenario)
 	}
 }
