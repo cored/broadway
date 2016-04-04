@@ -21,7 +21,7 @@ func TestSlackNotification(t *testing.T) {
 		{
 			"Not deployed instance",
 			&instance.Instance{PlaybookID: "mine", ID: "pr001", Status: instance.StatusError},
-			"mine-pr001 error",
+			"mine-pr001 failed to deploy",
 		},
 	}
 

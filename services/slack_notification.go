@@ -10,10 +10,14 @@ import (
 const NotificationFormat = "%s-%s %s"
 
 // NewSlackNotification builds a new slack notification
-func NewSlackNotification(instance *instance.Instance) string {
+func NewSlackNotification(i *instance.Instance) string {
+	instanceState := i.Status
+	if i.Status == instance.StatusError {
+		instanceState = "failed to deploy"
+	}
 	return fmt.Sprintf(
 		NotificationFormat,
-		instance.PlaybookID,
-		instance.ID,
-		instance.Status)
+		i.PlaybookID,
+		i.ID,
+		instanceState)
 }
