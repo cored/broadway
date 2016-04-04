@@ -7,7 +7,7 @@ import (
 )
 
 // NotificationFormat how we want to display the slack notification information
-const NotificationFormat = "%s-%s %s" // playbookid-id status
+const NotificationFormat = "%s-%s %s"
 
 // NewSlackNotification builds a new slack notification
 func NewSlackNotification(instance *instance.Instance) string {
