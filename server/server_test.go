@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"testing"
 
+	"github.com/namely/broadway/env"
 	"github.com/namely/broadway/instance"
 	"github.com/namely/broadway/playbook"
 	"github.com/namely/broadway/services"
@@ -29,28 +29,16 @@ func makeRequest(req *http.Request, w *httptest.ResponseRecorder) {
 }
 
 func TestServerNew(t *testing.T) {
-	err := os.Setenv(slackTokenENV, testToken)
-	if err != nil {
-		t.Fatal(err)
-	}
-	actualToken, exists := os.LookupEnv(slackTokenENV)
-	assert.True(t, exists, "Expected ENV to exist")
-	assert.Equal(t, testToken, actualToken, "Unexpected ENV value")
+	env.SlackToken = testToken
 
 	mem := store.New()
 
 	s := New(mem)
 	assert.Equal(t, testToken, s.slackToken, "Expected server.slackToken to match existing ENV value")
 
-	err = os.Unsetenv(slackTokenENV)
-	if err != nil {
-		t.Fatal(err)
-	}
-	actualToken, exists = os.LookupEnv(slackTokenENV)
-	assert.False(t, exists, "Expected ENV to not exist")
-	assert.Equal(t, "", actualToken, "Unexpected ENV value")
+	env.SlackToken = ""
 	s = New(mem)
-	assert.Equal(t, "", s.slackToken, "Expected server.slackToken to be empty string for missing ENV value")
+	assert.Equal(t, "", s.slackToken, "Expected server.slackToken to be empty string")
 
 }
 
@@ -214,9 +202,7 @@ func TestGetCommand200(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code, "Expected GET /command?ssl_check=1 to be 200")
 }
 func TestPostCommandMissingToken(t *testing.T) {
-	if err := os.Setenv(slackTokenENV, testToken); err != nil {
-		t.Fatal(err)
-	}
+	env.SlackToken = testToken
 	w, server := helperSetupServer()
 	formBytes := bytes.NewBufferString("not a form")
 	req, _ := http.NewRequest("POST", "/command", formBytes)
@@ -226,9 +212,7 @@ func TestPostCommandMissingToken(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, w.Code, "Expected POST /command with bad body to be 401")
 }
 func TestPostCommandWrongToken(t *testing.T) {
-	if err := os.Setenv(slackTokenENV, testToken); err != nil {
-		t.Fatal(err)
-	}
+	env.SlackToken = testToken
 	w, server := helperSetupServer()
 	req, _ := http.NewRequest("POST", "/command", nil)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -240,9 +224,7 @@ func TestPostCommandWrongToken(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, w.Code, "Expected POST /command with wrong token to be 401")
 }
 func TestPostCommandHelp(t *testing.T) {
-	if err := os.Setenv(slackTokenENV, testToken); err != nil {
-		t.Fatal(err)
-	}
+	env.SlackToken = testToken
 	w, server := helperSetupServer()
 	req, _ := http.NewRequest("POST", "/command", nil)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -257,9 +239,7 @@ func TestPostCommandHelp(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "/broadway", "Expected help message to contain /broadway")
 }
 func TestPostCommandDeployBad(t *testing.T) {
-	if err := os.Setenv(slackTokenENV, testToken); err != nil {
-		t.Fatal(err)
-	}
+	env.SlackToken = testToken
 	w, server := helperSetupServer()
 	req, _ := http.NewRequest("POST", "/command", nil)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")

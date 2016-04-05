@@ -1,7 +1,9 @@
 package deployment
 
 import (
-	"os"
+	"github.com/namely/broadway/env"
+	"github.com/namely/broadway/manifest"
+	"github.com/namely/broadway/playbook"
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/meta"
@@ -14,9 +16,6 @@ import (
 
 	// Install API
 	_ "k8s.io/kubernetes/pkg/api/install"
-
-	"github.com/namely/broadway/manifest"
-	"github.com/namely/broadway/playbook"
 )
 
 var groupVersionKind = unversioned.GroupVersionKind{
@@ -46,7 +45,7 @@ func init() {
 	factory := serializer.NewCodecFactory(scheme)
 	deserializer = factory.UniversalDeserializer()
 
-	namespace = os.Getenv("KUBERNETES_NAMESPACE")
+	namespace = env.K8sNamespace
 }
 
 // KubernetesDeployment represents a deployment of an instance

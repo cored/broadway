@@ -4,19 +4,10 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/namely/broadway/env"
+
 	"k8s.io/kubernetes/pkg/client/restclient"
 )
-
-var (
-	// EnvServiceHost is the Kubernetes host
-	EnvServiceHost = os.Getenv("KUBERNETES_SERVICE_HOST")
-	// EnvServicePort is the Kubernetes port
-	EnvServicePort = os.Getenv("KUBERNETES_PORT_443_TCP_PORT")
-)
-
-func init() {
-
-}
 
 // IsKubernetesEnv returns true if necessary Kubernetes environment variables
 // and files are available
@@ -34,8 +25,8 @@ func IsKubernetesEnv() bool {
 	}
 
 	envs := []string{
-		EnvServicePort,
-		EnvServiceHost,
+		env.K8sServicePort,
+		env.K8sServiceHost,
 	}
 
 	for _, env := range envs {
@@ -68,7 +59,7 @@ func KubernetesConfig() (*restclient.Config, error) {
 		return nil, err
 	}
 	return &restclient.Config{
-		Host:        "http://" + EnvServiceHost + ":" + EnvServicePort,
+		Host:        "http://" + env.K8sServiceHost + ":" + env.K8sServicePort,
 		BearerToken: string(token),
 		TLSClientConfig: restclient.TLSClientConfig{
 			CAFile: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",

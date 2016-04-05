@@ -2,8 +2,9 @@ package store
 
 import (
 	"log"
-	"os"
 	"strings"
+
+	"github.com/namely/broadway/env"
 
 	etcdclient "github.com/coreos/etcd/client"
 	"golang.org/x/net/context"
@@ -14,7 +15,7 @@ var api etcdclient.KeysAPI
 func init() {
 	var err error
 	cfg := etcdclient.Config{
-		Endpoints: []string{os.Getenv("ETCD_HOST")},
+		Endpoints: []string{env.EtcdHost},
 	}
 	client, err := etcdclient.New(cfg)
 	if err != nil {
