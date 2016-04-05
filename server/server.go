@@ -204,7 +204,7 @@ func (s *Server) postCommand(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, UnauthorizedError)
 		return
 	}
-	code, output, err := helperRunCommand(s, form.Text)
+	code, output, err := doCommand(s, form.Text)
 	if err != nil {
 		log.Println(err)
 		c.JSON(code, InternalError)
@@ -214,9 +214,9 @@ func (s *Server) postCommand(c *gin.Context) {
 	return
 }
 
-// helperRunCommand takes the plaintext command, minus the leading /broadway
+// doCommand takes the plaintext command, minus the leading /broadway
 // trigger, and returns statusCode, message, error for output to the user
-func helperRunCommand(s *Server, text string) (int, string, error) {
+func doCommand(s *Server, text string) (int, string, error) {
 	commands := strings.Split(text, " ")
 	switch {
 	case len(commands) == 0:
@@ -229,7 +229,7 @@ func helperRunCommand(s *Server, text string) (int, string, error) {
 			return http.StatusOK, commandHint, nil
 		}
 
-		_, err := helperDeployInstance(s, commands[1], commands[2])
+		_, err := doDeploy(s, commands[1], commands[2])
 		if err != nil {
 			return http.StatusInternalServerError, "Deployment failed", err
 		}
@@ -240,7 +240,7 @@ func helperRunCommand(s *Server, text string) (int, string, error) {
 	}
 }
 
-func helperDeployInstance(s *Server, pID string, ID string) (*instance.Instance, error) {
+func doDeploy(s *Server, pID string, ID string) (*instance.Instance, error) {
 	is := services.NewInstanceService(s.store)
 	i, err := is.Show(pID, ID)
 	if err != nil {
@@ -256,7 +256,7 @@ func helperDeployInstance(s *Server, pID string, ID string) (*instance.Instance,
 }
 
 func (s *Server) deployInstance(c *gin.Context) {
-	i, err := helperDeployInstance(s, c.Param("playbookID"), c.Param("instanceID"))
+	i, err := doDeploy(s, c.Param("playbookID"), c.Param("instanceID"))
 	if err != nil {
 		log.Println(err)
 		switch err.(type) {
