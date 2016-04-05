@@ -46,16 +46,6 @@ func init() {
 	factory := serializer.NewCodecFactory(scheme)
 	deserializer = factory.UniversalDeserializer()
 
-	kcfg := &restclient.Config{
-		Host:     "http://localhost:8080",
-		Insecure: true,
-	}
-	var err error
-	client, err = coreclient.NewForConfig(kcfg)
-	if err != nil {
-		panic(err)
-	}
-
 	namespace = os.Getenv("KUBERNETES_NAMESPACE")
 }
 
@@ -67,12 +57,17 @@ type KubernetesDeployment struct {
 }
 
 // NewKubernetesDeployment creates a new kuberentes deployment
-func NewKubernetesDeployment(playbook *playbook.Playbook, variables map[string]string, manifests map[string]*manifest.Manifest) *KubernetesDeployment {
+func NewKubernetesDeployment(config *restclient.Config, playbook *playbook.Playbook, variables map[string]string, manifests map[string]*manifest.Manifest) (*KubernetesDeployment, error) {
+	var err error
+	client, err = coreclient.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
 	return &KubernetesDeployment{
 		Playbook:  playbook,
 		Variables: variables,
 		Manifests: manifests,
-	}
+	}, nil
 }
 
 // Deploy executes the deployment

@@ -44,13 +44,20 @@ func vars(i *instance.Instance) map[string]string {
 
 // Deploy deploys a playbook
 func (d *DeploymentService) Deploy(i *instance.Instance) error {
-
 	playbook, ok := d.playbooks[i.PlaybookID]
 	if !ok {
 		return fmt.Errorf("Could not find playbook ID %s while deploying %s\n", i.PlaybookID, i.ID)
 	}
 
-	deployer := deployment.NewKubernetesDeployment(playbook, vars(i), d.manifests)
+	config, err := deployment.Config()
+	if err != nil {
+		return err
+	}
+
+	deployer, err := deployment.NewKubernetesDeployment(config, playbook, vars(i), d.manifests)
+	if err != nil {
+		return err
+	}
 
 	if i.Status == instance.StatusDeploying {
 		return errors.New("Instance is being deployed already.")
@@ -61,7 +68,7 @@ func (d *DeploymentService) Deploy(i *instance.Instance) error {
 	}
 
 	i.Status = instance.StatusDeploying
-	err := d.repo.Save(i)
+	err = d.repo.Save(i)
 	if err != nil {
 		log.Printf("Failed to save instance status Deploying for %s/%s, continuing deployment\n", i.PlaybookID, i.ID)
 		log.Println(err)
