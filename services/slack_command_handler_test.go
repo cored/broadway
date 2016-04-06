@@ -53,33 +53,6 @@ func TestExecuteSetvar(t *testing.T) {
 	}
 }
 
-/*
-func TestBuildSlackCommand(t *testing.T) {
-	is := NewInstanceService(store.New())
-	testcases := []struct {
-		text         string
-		expectedType SlackCommand
-	}{
-		{
-			"dummy",
-			dummyCommand,
-		},
-		{
-			"help",
-			helpCommand,
-		},
-		{
-			"setvar",
-			setvarCommand,
-		},
-	}
-	for _, testcase := range testcases {
-		c := BuildSlackCommand(testcase.text, is)
-		assert.True(t, c.(type) == testcase.expectedType, "Built command was not type "+testcase.expectedType)
-	}
-}
-*/
-
 func TestSetvar(t *testing.T) {
 	i := &instance.Instance{
 		PlaybookID: "balls",
