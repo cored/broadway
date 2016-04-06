@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/namely/broadway/env"
 	"github.com/namely/broadway/store"
 )
 
@@ -71,14 +72,14 @@ func (ir *Repo) FindByPath(path string) (*Instance, error) {
 
 // FindByID finds an instance by playbook and instance ID
 func (ir *Repo) FindByID(playbookID, ID string) (*Instance, error) {
-	path := "/broadway/instances/" + playbookID + "/" + ID
+	path := env.EtcdPath + "/instances/" + playbookID + "/" + ID
 	return ir.FindByPath(path)
 }
 
 // FindByPlaybookID finds instances by playbook id
 func (ir *Repo) FindByPlaybookID(playbookID string) ([]*Instance, error) {
 
-	data := ir.store.Values(fmt.Sprintf("/broadway/instances/%s", playbookID))
+	data := ir.store.Values(fmt.Sprintf(env.EtcdPath+"/instances/%s", playbookID))
 	instances := []*Instance{}
 	for _, value := range data {
 		var instance Instance
