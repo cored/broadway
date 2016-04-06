@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/namely/broadway/instance"
 	"github.com/namely/broadway/store"
 	"github.com/stretchr/testify/assert"
 )
@@ -74,11 +75,19 @@ func TestBuildSlackCommand(t *testing.T) {
 }
 */
 
-/*
-func TestSetvar(t *testing.T){
-	i := &broadway.Instance {
-		playbookID: "foo",
-		ID: "bar",
+func TestSetvar(t *testing.T) {
+	i := &instance.Instance{
+		PlaybookID: "balls",
+		ID:         "bowling",
 	}
+	is := NewInstanceService(store.New())
+	is.repo.Save(i)
+
+	c := setvarCommand{
+		args: []string{"setvar", "balls", "bowling", "pins=10"},
+		is:   is,
+	}
+	c.Execute()
+	i2, _ := is.Show("balls", "bowling")
+	assert.Equal(t, "10", i2.Vars["pins"], "Expected setvar to update the instance")
 }
-*/
