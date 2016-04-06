@@ -20,6 +20,14 @@ func (c *dummyCommand) Execute() error {
 	return errors.New("foo")
 }
 
+type deployCommand struct {
+	args []string
+}
+
+func (c *deployCommand) Execute() error {
+	return errors.New("foo")
+}
+
 type setvarCommand struct {
 	args []string
 	Vars map[string]string
