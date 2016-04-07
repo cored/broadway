@@ -247,12 +247,12 @@ func TestSlackCommandSetvar(t *testing.T) {
 	form := url.Values{}
 	form.Set("token", testToken)
 	form.Set("command", "/broadway")
-	form.Set("text", "setvar foo bar var1=val1")
+	form.Set("text", "setvar boing bar var1=val1")
 	req.PostForm = form
 
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code, "Expected /broadway help to be 200")
-	assert.Contains(t, w.Body.String(), "Instance foo bar set the variables var1=val1", "Expected message")
+	assert.Equal(t, w.Body.String(), "Instance boing bar updated it's variables", "Expected message")
 }
 
 func TestPostCommandDeployBad(t *testing.T) {

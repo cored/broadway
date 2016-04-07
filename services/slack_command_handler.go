@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/golang/glog"
@@ -50,7 +51,8 @@ func (c *setvarCommand) Execute() (string, error) {
 		glog.Errorf("Failed to save instance %s/%s with new vars\n", c.args[1], c.args[2])
 		return "", err
 	}
-	return "", nil
+	commandMsg := fmt.Sprintf("Instance %s %s updated it's variables", i.PlaybookID, i.ID)
+	return commandMsg, nil
 }
 
 // Help slack command
