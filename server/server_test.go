@@ -95,7 +95,7 @@ func TestGetInstanceWithValidPath(t *testing.T) {
 }
 
 func TestGetInstanceWithInvalidPath(t *testing.T) {
-	req, w := testutils.GetRequest(t, "/instance/bar/foo")
+	req, w := testutils.GetRequest(t, "/instance/missed/notfound")
 	makeRequest(req, w)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
