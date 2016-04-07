@@ -15,6 +15,7 @@ type Instance struct {
 	Status
 }
 
+// Status for an instance
 type Status string
 
 const (
