@@ -239,6 +239,22 @@ func TestPostCommandHelp(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "/broadway", "Expected help message to contain /broadway")
 }
 
+func TestSlackCommandSetvar(t *testing.T) {
+	env.SlackToken = testToken
+	w, server := helperSetupServer()
+	req, _ := http.NewRequest("POST", "/command", nil)
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	form := url.Values{}
+	form.Set("token", testToken)
+	form.Set("command", "/broadway")
+	form.Set("text", "setvar foo bar var1=val1")
+	req.PostForm = form
+
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code, "Expected /broadway help to be 200")
+	assert.Contains(t, w.Body.String(), "Instance foo bar set the variables var1=val1", "Expected message")
+}
+
 func TestPostCommandDeployBad(t *testing.T) {
 	env.SlackToken = testToken
 	w, server := helperSetupServer()
