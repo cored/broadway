@@ -60,7 +60,10 @@ func TestFindByID(t *testing.T) {
 	repo := NewRepo(store.New())
 	i := &Instance{PlaybookID: "created", ID: "222"}
 
-	repo.Save(i)
+	err := repo.Save(i)
+	if err != nil {
+		t.Error(err)
+	}
 	instance, err := repo.FindByID(i.PlaybookID, i.ID)
 	assert.Nil(t, err)
 	assert.Equal(t, "created", instance.PlaybookID)
@@ -69,8 +72,11 @@ func TestFindByID(t *testing.T) {
 func TestFindByPlaybookIDOne(t *testing.T) {
 	repo := NewRepo(store.New())
 	i := &Instance{PlaybookID: "one", ID: "222"}
-	repo.Save(i)
+	err := repo.Save(i)
 
+	if err != nil {
+		t.Error(err)
+	}
 	instances, err := repo.FindByPlaybookID(i.PlaybookID)
 	assert.Nil(t, err)
 	assert.Len(t, instances, 1)
