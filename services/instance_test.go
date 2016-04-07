@@ -13,9 +13,8 @@ func TestCreateInstance(t *testing.T) {
 	service := NewInstanceService(store)
 
 	i := &instance.Instance{PlaybookID: "test", ID: "222"}
-	err := service.Create(i)
+	createdInstance, err := service.Create(i)
 	assert.Nil(t, err)
-	createdInstance, _ := service.Show(i.PlaybookID, i.ID)
 	assert.Equal(t, "test", createdInstance.PlaybookID)
 	assert.Equal(t, instance.StatusNew, createdInstance.Status)
 }
@@ -25,11 +24,10 @@ func TestShow(t *testing.T) {
 	service := NewInstanceService(store)
 
 	i := &instance.Instance{PlaybookID: "test", ID: "222"}
-	err := service.Create(i)
+	createdInstance, err := service.Create(i)
 	i, err = service.Show(i.PlaybookID, i.ID)
 	assert.Nil(t, err)
-	assert.Equal(t, "test", i.PlaybookID)
-	assert.Equal(t, "222", i.ID)
+	assert.Equal(t, createdInstance, i)
 }
 
 func TestShowMissingInstance(t *testing.T) {
@@ -47,7 +45,7 @@ func TestAllWithPlaybookID(t *testing.T) {
 	service := NewInstanceService(store)
 
 	i := &instance.Instance{PlaybookID: "test", ID: "222"}
-	err := service.Create(i)
+	_, err := service.Create(i)
 	if err != nil {
 		t.Log(err)
 	}
@@ -55,4 +53,36 @@ func TestAllWithPlaybookID(t *testing.T) {
 	instances, err := service.AllWithPlaybookID(i.PlaybookID)
 	assert.Nil(t, err)
 	assert.NotEmpty(t, instances)
+}
+
+func TestUpdate(t *testing.T) {
+	instanceService := NewInstanceService(store.New())
+	testcases := []struct {
+		Scenario           string
+		Instance           *instance.Instance
+		ExpectedPlaybookID string
+		ExpectedID         string
+		ExpectedVars       map[string]string
+		E                  error
+	}{
+		{
+			"When the instance have all the needed values",
+			&instance.Instance{PlaybookID: "foo", ID: "bar"},
+			"bar",
+			"foo",
+			map[string]string{},
+			nil,
+		},
+	}
+
+	for _, testcase := range testcases {
+		createdInstance, _ := instanceService.Create(testcase.Instance)
+		createdInstance.PlaybookID = testcase.ExpectedPlaybookID
+		createdInstance.ID = testcase.ExpectedID
+		createdInstance.Vars = testcase.ExpectedVars
+		updatedInstance, err := instanceService.Update(createdInstance)
+
+		assert.Equal(t, testcase.ExpectedPlaybookID, updatedInstance.PlaybookID)
+		assert.Equal(t, testcase.E, err, testcase.Scenario)
+	}
 }

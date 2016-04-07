@@ -12,14 +12,6 @@ type SlackCommand interface {
 	Execute() error
 }
 
-type dummyCommand struct {
-	args []string
-}
-
-func (c *dummyCommand) Execute() error {
-	return errors.New("foo")
-}
-
 type deployCommand struct {
 	args []string
 }
@@ -50,13 +42,13 @@ func (c *setvarCommand) Execute() error {
 	i, err := c.is.Show(c.args[1], c.args[2])
 	if err != nil {
 		glog.Warningf("Cannot setvars for not found instance %s/%s\n", c.args[1], c.args[2])
-		return errors.New("Instance not found")
+		return err
 	}
 	i.Vars = c.Vars
-	err = c.is.repo.Save(i)
+	_, err = c.is.Update(i)
 	if err != nil {
 		glog.Errorf("Failed to save instance %s/%s with new vars\n", c.args[1], c.args[2])
-		return errors.New("Instance not updated")
+		return err
 	}
 	return nil
 }
@@ -65,12 +57,8 @@ func (c *setvarCommand) Execute() error {
 func BuildSlackCommand(payload string, is *InstanceService) SlackCommand {
 	terms := strings.Split(payload, " ")
 	switch terms[0] {
-	case "dummy":
-		return &dummyCommand{args: terms}
 	case "setvar": // setvar foo bar var1=val1 var2=val2
 		return &setvarCommand{args: terms, is: is}
-		// case "help"
-	default:
-		return &dummyCommand{args: terms}
 	}
+	return nil
 }

@@ -16,8 +16,21 @@ func NewInstanceService(s store.Store) *InstanceService {
 }
 
 // Create a new instance
-func (is *InstanceService) Create(i *instance.Instance) error {
-	return is.repo.Save(i)
+func (is *InstanceService) Create(i *instance.Instance) (*instance.Instance, error) {
+	err := is.repo.Save(i)
+	if err != nil {
+		return nil, err
+	}
+	createdInstance, err := is.repo.FindByPath(i.Path())
+	if err != nil {
+		return nil, err
+	}
+	return createdInstance, nil
+}
+
+// Update an instance
+func (is *InstanceService) Update(instance *instance.Instance) (*instance.Instance, error) {
+	return is.Create(instance)
 }
 
 // Show takes playbookID and instanceID and returns the matching Instance, if
