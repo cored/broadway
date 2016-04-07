@@ -9,6 +9,8 @@ import (
 )
 
 func TestCreateInstance(t *testing.T) {
+	nt := newNotificationTestHelper()
+	defer nt.Close()
 	store := store.New()
 	service := NewInstanceService(store)
 
@@ -17,6 +19,7 @@ func TestCreateInstance(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "test", createdInstance.PlaybookID)
 	assert.Equal(t, instance.StatusNew, createdInstance.Status)
+	assert.Contains(t, nt.requestBody, "created")
 }
 
 func TestShow(t *testing.T) {
