@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExecuteSetvar(t *testing.T) {
+func TestSetvarExecute(t *testing.T) {
 	is := NewInstanceService(store.New())
 	i := &instance.Instance{
 		PlaybookID: "foo",
@@ -47,25 +47,31 @@ func TestExecuteSetvar(t *testing.T) {
 			args: testcase.Arguments,
 			is:   is,
 		}
-		err := command.Execute()
+		msg, err := command.Execute()
+		assert.Empty(t, msg)
 		assert.Equal(t, testcase.E, err, testcase.Scenario)
 		assert.Equal(t, testcase.Expected, command.Vars, testcase.Scenario)
 	}
 }
 
-func TestSetvar(t *testing.T) {
-	i := &instance.Instance{
-		PlaybookID: "balls",
-		ID:         "bowling",
+func TestHelpExecute(t *testing.T) {
+	testcases := []struct {
+		Scenario string
+		Expected string
+		E        error
+	}{
+		{
+			"When passing help command",
+			`/broadway help: This message
+/broadway deploy myPlaybookID myInstanceID: Deploy a new instance`,
+			nil,
+		},
 	}
-	is := NewInstanceService(store.New())
-	is.repo.Save(i)
 
-	c := setvarCommand{
-		args: []string{"setvar", "balls", "bowling", "pins=10"},
-		is:   is,
+	for _, testcase := range testcases {
+		command := &helpCommand{}
+		msg, err := command.Execute()
+		assert.Nil(t, err)
+		assert.Equal(t, testcase.Expected, msg)
 	}
-	c.Execute()
-	i2, _ := is.Show("balls", "bowling")
-	assert.Equal(t, "10", i2.Vars["pins"], "Expected setvar to update the instance")
 }

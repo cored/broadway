@@ -59,6 +59,8 @@ func TestAllWithPlaybookID(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	nt := newNotificationTestHelper()
+	defer nt.Close()
 	instanceService := NewInstanceService(store.New())
 	testcases := []struct {
 		Scenario           string

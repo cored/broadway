@@ -205,14 +205,14 @@ func (s *Server) postCommand(c *gin.Context) {
 	}
 	is := services.NewInstanceService(s.store)
 	slackCommand := services.BuildSlackCommand(form.Text, is)
-	err := slackCommand.Execute()
+	msg, err := slackCommand.Execute()
 
 	if err != nil {
 		glog.Error(err)
 		c.JSON(http.StatusInternalServerError, InternalError)
 		return
 	}
-	c.String(http.StatusOK, "")
+	c.String(http.StatusOK, msg)
 	return
 }
 

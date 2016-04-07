@@ -24,16 +24,20 @@ func (is *InstanceService) Create(i *instance.Instance) (*instance.Instance, err
 	if err != nil {
 		return nil, err
 	}
-	createdInstance, err := is.repo.FindByPath(i.Path())
+	err = sendCreationNotification(i)
 	if err != nil {
-		return nil, err
+		return i, err
 	}
-	return createdInstance, nil
+	return i, nil
 }
 
 // Update an instance
-func (is *InstanceService) Update(instance *instance.Instance) (*instance.Instance, error) {
-	return is.Create(instance)
+func (is *InstanceService) Update(i *instance.Instance) (*instance.Instance, error) {
+	err := is.repo.Save(i)
+	if err != nil {
+		return nil, err
+	}
+	return i, nil
 }
 
 // Show takes playbookID and instanceID and returns the matching Instance, if

@@ -95,7 +95,7 @@ func TestGetInstanceWithValidPath(t *testing.T) {
 }
 
 func TestGetInstanceWithInvalidPath(t *testing.T) {
-	req, w := testutils.GetRequest(t, "/instance/foo/bar")
+	req, w := testutils.GetRequest(t, "/instance/bar/foo")
 	makeRequest(req, w)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
@@ -238,6 +238,7 @@ func TestPostCommandHelp(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code, "Expected /broadway help to be 200")
 	assert.Contains(t, w.Body.String(), "/broadway", "Expected help message to contain /broadway")
 }
+
 func TestPostCommandDeployBad(t *testing.T) {
 	env.SlackToken = testToken
 	w, server := helperSetupServer()
