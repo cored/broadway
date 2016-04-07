@@ -83,7 +83,7 @@ func TestGetInstanceWithValidPath(t *testing.T) {
 	store := store.New()
 	i := &instance.Instance{PlaybookID: "foo", ID: "doesExist"}
 	service := services.NewInstanceService(store)
-	err := service.Create(i)
+	_, err := service.Create(i)
 	if err != nil {
 		t.Log(err.Error())
 	}
@@ -105,8 +105,8 @@ func TestGetInstancesWithFullPlaybook(t *testing.T) {
 	testInstance1 := &instance.Instance{PlaybookID: "testPlaybookFull", ID: "testInstance1"}
 	testInstance2 := &instance.Instance{PlaybookID: "testPlaybookFull", ID: "testInstance2"}
 	service := services.NewInstanceService(store.New())
-	err := service.Create(testInstance1)
-	err = service.Create(testInstance2)
+	_, err := service.Create(testInstance1)
+	_, err = service.Create(testInstance2)
 	if err != nil {
 		t.Log(err.Error())
 	}
@@ -159,7 +159,7 @@ func TestGetStatusWithGoodPath(t *testing.T) {
 		ID:         "goodInstance",
 		Status:     instance.StatusDeployed}
 	service := services.NewInstanceService(store.New())
-	err := service.Create(testInstance1)
+	_, err := service.Create(testInstance1)
 	if err != nil {
 		t.Error(err)
 		return
