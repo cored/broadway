@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 
+	"github.com/golang/glog"
 	"github.com/namely/broadway/instance"
 	"github.com/namely/broadway/notification"
 	"github.com/namely/broadway/store"
@@ -20,6 +21,7 @@ func NewInstanceService(s store.Store) *InstanceService {
 
 // Create a new instance
 func (is *InstanceService) Create(i *instance.Instance) (*instance.Instance, error) {
+	glog.Info("Instance Service: Create")
 	err := is.repo.Save(i)
 	if err != nil {
 		return nil, err
@@ -33,6 +35,7 @@ func (is *InstanceService) Create(i *instance.Instance) (*instance.Instance, err
 
 // Update an instance
 func (is *InstanceService) Update(i *instance.Instance) (*instance.Instance, error) {
+	glog.Info("Instance Service: Update")
 	err := is.repo.Save(i)
 	if err != nil {
 		return nil, err
