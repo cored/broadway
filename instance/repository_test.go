@@ -75,7 +75,7 @@ func TestFindByPlaybookIDOne(t *testing.T) {
 	err := repo.Save(i)
 
 	if err != nil {
-		t.Error(err)
+		t.Fail()
 	}
 	instances, err := repo.FindByPlaybookID(i.PlaybookID)
 	assert.Nil(t, err)

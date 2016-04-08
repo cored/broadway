@@ -44,13 +44,12 @@ func TestShowMissingInstance(t *testing.T) {
 }
 
 func TestAllWithPlaybookID(t *testing.T) {
-	store := store.New()
-	service := NewInstanceService(store)
+	service := NewInstanceService(store.New())
 
-	i := &instance.Instance{PlaybookID: "test", ID: "222"}
+	i := &instance.Instance{PlaybookID: "test110", ID: "222"}
 	_, err := service.Create(i)
 	if err != nil {
-		t.Log(err)
+		t.Error(err)
 	}
 
 	instances, err := service.AllWithPlaybookID(i.PlaybookID)
