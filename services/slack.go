@@ -7,7 +7,6 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/namely/broadway/deployment"
-	"github.com/namely/broadway/instance"
 )
 
 // SlackCommand represents a user command that came in from Slack
@@ -53,17 +52,11 @@ func (c *setvarCommand) Execute() (string, error) {
 			glog.Warning("Setvar tried to parse badly formatted variable: " + kv)
 			return "", &InvalidSetVar{}
 		}
-		if c.playbookContainsVars(i) {
-			if _, ok := i.Vars[tmp[0]]; ok {
-				i.Vars[tmp[0]] = tmp[1]
-				commandMsg = fmt.Sprintf("Instance %s %s updated it's variables",
-					i.PlaybookID,
-					i.ID)
-			} else {
-				return fmt.Sprintf("Instance %s %s does not define those variables",
-					i.PlaybookID,
-					i.ID), &InvalidSetVar{}
-			}
+		if c.playbookContainsVar(i.PlaybookID, tmp[0]) {
+			i.Vars[tmp[0]] = tmp[1]
+			commandMsg = fmt.Sprintf("Instance %s %s updated it's variables",
+				i.PlaybookID,
+				i.ID)
 		} else {
 			return fmt.Sprintf("Playbook %s does not define those variables",
 				i.PlaybookID), &InvalidSetVar{}
@@ -77,11 +70,10 @@ func (c *setvarCommand) Execute() (string, error) {
 	return commandMsg, nil
 }
 
-func (c *setvarCommand) playbookContainsVars(i *instance.Instance) bool {
-	if _, ok := c.playbooks[i.PlaybookID]; ok {
-		playbook := c.playbooks[i.PlaybookID]
-		for _, playbookVar := range playbook.Vars {
-			if _, ok := i.Vars[playbookVar]; ok {
+func (c *setvarCommand) playbookContainsVar(playbookID, name string) bool {
+	if p, ok := c.playbooks[playbookID]; ok {
+		for _, playbookVar := range p.Vars {
+			if playbookVar == name {
 				return true
 			}
 		}
