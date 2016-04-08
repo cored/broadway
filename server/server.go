@@ -7,8 +7,6 @@ import (
 	"github.com/namely/broadway/deployment"
 	"github.com/namely/broadway/env"
 	"github.com/namely/broadway/instance"
-	"github.com/namely/broadway/manifest"
-	"github.com/namely/broadway/playbook"
 	"github.com/namely/broadway/services"
 	"github.com/namely/broadway/store"
 
@@ -20,8 +18,8 @@ import (
 type Server struct {
 	store      store.Store
 	slackToken string
-	playbooks  map[string]*playbook.Playbook
-	manifests  map[string]*manifest.Manifest
+	playbooks  map[string]*deployment.Playbook
+	manifests  map[string]*deployment.Manifest
 	deployer   deployment.Deployer
 	engine     *gin.Engine
 }
@@ -70,7 +68,7 @@ func (s *Server) Init() {
 		glog.Fatal(err)
 	}
 
-	s.playbooks, err = playbook.LoadPlaybookFolder("playbooks/")
+	s.playbooks, err = deployment.LoadPlaybookFolder("playbooks/")
 	glog.Info("%+v", s.playbooks)
 	if err != nil {
 		glog.Fatal(err)

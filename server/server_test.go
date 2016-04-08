@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/namely/broadway/deployment"
 	"github.com/namely/broadway/env"
 	"github.com/namely/broadway/instance"
-	"github.com/namely/broadway/playbook"
 	"github.com/namely/broadway/services"
 	"github.com/namely/broadway/store"
 	"github.com/namely/broadway/testutils"
@@ -298,26 +298,26 @@ func TestDeployMissing(t *testing.T) {
 }
 
 func TestDeployGood(t *testing.T) {
-	task := playbook.Task{
+	task := deployment.Task{
 		Name: "First step",
 		Manifests: []string{
 			"test",
 		},
 	}
 	// Ensure playbook is in memory
-	p := &playbook.Playbook{
+	p := &deployment.Playbook{
 		ID:    "test",
 		Name:  "Test deployment",
-		Meta:  playbook.Meta{},
+		Meta:  deployment.Meta{},
 		Vars:  []string{"test"},
-		Tasks: []playbook.Task{task},
+		Tasks: []deployment.Task{task},
 	}
 
 	// Ensure manifest "test.yml" present in manifests folder
 	// Setup server
 	mem := store.New()
 	server := New(mem)
-	server.playbooks = map[string]*playbook.Playbook{p.ID: p}
+	server.playbooks = map[string]*deployment.Playbook{p.ID: p}
 	// engine := server.Handler()
 
 	// Ensure instance present in etcd

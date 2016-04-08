@@ -2,8 +2,6 @@ package deployment
 
 import (
 	"github.com/namely/broadway/env"
-	"github.com/namely/broadway/manifest"
-	"github.com/namely/broadway/playbook"
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/meta"
@@ -35,7 +33,7 @@ type Step interface {
 
 // TaskStep combines a task and a step
 type TaskStep struct {
-	task *playbook.Task
+	task *Task
 	step Step
 }
 
@@ -50,13 +48,13 @@ func init() {
 
 // KubernetesDeployment represents a deployment of an instance
 type KubernetesDeployment struct {
-	Playbook  *playbook.Playbook
+	Playbook  *Playbook
 	Variables map[string]string
-	Manifests map[string]*manifest.Manifest
+	Manifests map[string]*Manifest
 }
 
 // NewKubernetesDeployment creates a new kuberentes deployment
-func NewKubernetesDeployment(config *restclient.Config, playbook *playbook.Playbook, variables map[string]string, manifests map[string]*manifest.Manifest) (*KubernetesDeployment, error) {
+func NewKubernetesDeployment(config *restclient.Config, playbook *Playbook, variables map[string]string, manifests map[string]*Manifest) (*KubernetesDeployment, error) {
 	var err error
 	client, err = coreclient.NewForConfig(config)
 	if err != nil {

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/namely/broadway/playbook"
+	"github.com/namely/broadway/deployment"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -67,7 +67,7 @@ func TestLoad(t *testing.T) {
 func TestLoadTask(t *testing.T) {
 	ms := NewManifestService("./manifests")
 	ms.rootFolder = tmpDir
-	tk := playbook.Task{
+	tk := deployment.Task{
 		Name: "First step",
 		Manifests: []string{
 			"test",

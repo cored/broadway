@@ -7,21 +7,19 @@ import (
 	"github.com/golang/glog"
 	"github.com/namely/broadway/deployment"
 	"github.com/namely/broadway/instance"
-	"github.com/namely/broadway/manifest"
 	"github.com/namely/broadway/notification"
-	"github.com/namely/broadway/playbook"
 	"github.com/namely/broadway/store"
 )
 
 // DeploymentService implements the Broadway logic for deployments
 type DeploymentService struct {
 	repo      instance.Repository
-	playbooks map[string]*playbook.Playbook
-	manifests map[string]*manifest.Manifest
+	playbooks map[string]*deployment.Playbook
+	manifests map[string]*deployment.Manifest
 }
 
 // NewDeploymentService creates a new DeploymentService
-func NewDeploymentService(s store.Store, ps map[string]*playbook.Playbook, ms map[string]*manifest.Manifest) *DeploymentService {
+func NewDeploymentService(s store.Store, ps map[string]*deployment.Playbook, ms map[string]*deployment.Manifest) *DeploymentService {
 	return &DeploymentService{
 		repo:      instance.NewRepo(s),
 		playbooks: ps,

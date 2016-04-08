@@ -1,4 +1,4 @@
-package manifest
+package deployment
 
 import (
 	"bytes"
@@ -13,7 +13,7 @@ type Manifest struct {
 }
 
 // New creates a new Manifest object and parses (but does not execute) the template
-func New(id, content string) (*Manifest, error) {
+func NewManifest(id, content string) (*Manifest, error) {
 	t, err := template.New(id).Parse(content)
 	if err != nil {
 		return nil, err

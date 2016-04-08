@@ -1,4 +1,4 @@
-package manifest
+package deployment
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestExecute(t *testing.T) {
-	m, err := New("test", `{{ .test }}`)
+	m, err := NewManifest("test", `{{ .test }}`)
 	assert.Nil(t, err)
 
 	out := m.Execute(map[string]string{"test": "hello!"})

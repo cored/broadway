@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/namely/broadway/deployment"
 	"github.com/namely/broadway/instance"
-	"github.com/namely/broadway/playbook"
 	"github.com/namely/broadway/store"
 )
 
@@ -18,7 +18,7 @@ func TestDeployment(t *testing.T) {
 		panic(err)
 	}
 
-	playbooks, err := playbook.LoadPlaybookFolder("../examples/playbooks")
+	playbooks, err := deployment.LoadPlaybookFolder("../examples/playbooks")
 	if err != nil {
 		panic(err)
 	}

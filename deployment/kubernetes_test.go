@@ -6,9 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"k8s.io/kubernetes/pkg/client/testing/core"
 	"k8s.io/kubernetes/pkg/client/typed/generated/core/v1/fake"
-
-	"github.com/namely/broadway/manifest"
-	"github.com/namely/broadway/playbook"
 )
 
 func init() {
@@ -18,12 +15,12 @@ func init() {
 func TestDeploy(t *testing.T) {
 	cases := []struct {
 		Name     string
-		Tasks    []playbook.Task
+		Tasks    []Task
 		Expected int
 	}{
 		{
 			Name: "Step with one manifest file",
-			Tasks: []playbook.Task{
+			Tasks: []Task{
 				{
 					Name: "First step",
 					Manifests: []string{
@@ -34,7 +31,7 @@ func TestDeploy(t *testing.T) {
 			Expected: 2,
 		}, {
 			Name: "Step with 3 manifest files",
-			Tasks: []playbook.Task{
+			Tasks: []Task{
 				{
 					Name: "First step",
 					Manifests: []string{
@@ -47,7 +44,7 @@ func TestDeploy(t *testing.T) {
 			Expected: 6,
 		}, {
 			Name: "Step with 1 podmanifest file",
-			Tasks: []playbook.Task{
+			Tasks: []Task{
 				{
 					Name:        "First step",
 					PodManifest: "test",
@@ -56,7 +53,7 @@ func TestDeploy(t *testing.T) {
 			Expected: 2,
 		}, {
 			Name: "Two Tasks with podmanifest steps",
-			Tasks: []playbook.Task{
+			Tasks: []Task{
 				{
 					Name:        "First step",
 					PodManifest: "test",
@@ -73,8 +70,8 @@ func TestDeploy(t *testing.T) {
 	vars := map[string]string{
 		"test": "ok",
 	}
-	m, _ := manifest.New("test", mtemplate)
-	manifests := map[string]*manifest.Manifest{
+	m, _ := NewManifest("test", mtemplate)
+	manifests := map[string]*Manifest{
 		"test":  m,
 		"test2": m,
 		"test3": m,
@@ -84,10 +81,10 @@ func TestDeploy(t *testing.T) {
 		// Reset client
 		client.(*fake.FakeCore).Fake.ClearActions()
 
-		p := &playbook.Playbook{
+		p := &Playbook{
 			ID:    "test",
 			Name:  "Test deployment",
-			Meta:  playbook.Meta{},
+			Meta:  Meta{},
 			Vars:  []string{"test"},
 			Tasks: c.Tasks,
 		}
