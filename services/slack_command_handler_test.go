@@ -37,14 +37,14 @@ func TestSetvarExecute(t *testing.T) {
 			&instance.Instance{PlaybookID: "foo", ID: "bar", Vars: map[string]string{"var1": "val2"}},
 			map[string]string{"var1": "val2"},
 			"Instance foo bar does not define those variables",
-			nil,
+			&InvalidSetVar{},
 		},
 		{
 			"When an argument text just has a key",
 			"setvar foobar barfoo var1=",
 			&instance.Instance{PlaybookID: "foobar", ID: "barfoo"},
 			nil,
-			"",
+			"Instance foobar barfoo does not define those variables",
 			&InvalidSetVar{},
 		},
 		{
@@ -52,7 +52,7 @@ func TestSetvarExecute(t *testing.T) {
 			"setvar barbar foofoo =val1",
 			&instance.Instance{PlaybookID: "barbar", ID: "foofoo"},
 			nil,
-			"",
+			"Instance barbar foofoo does not define those variables",
 			&InvalidSetVar{},
 		},
 		{

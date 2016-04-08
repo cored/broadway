@@ -45,9 +45,7 @@ func (c *setvarCommand) Execute() (string, error) {
 		return "", err
 	}
 	for _, kv := range kvs {
-		kv = strings.TrimPrefix(kv, "=")
-		kv = strings.TrimSuffix(kv, "=")
-		tmp := strings.Split(kv, "=")
+		tmp := strings.SplitN(kv, "=", 2)
 		if len(tmp) != 2 {
 			glog.Warning("Setvar tried to parse badly formatted variable: " + kv)
 			return "", &InvalidSetVar{}
@@ -58,9 +56,9 @@ func (c *setvarCommand) Execute() (string, error) {
 				i.PlaybookID,
 				i.ID)
 		} else {
-			commandMsg = fmt.Sprintf("Instance %s %s does not define those variables",
+			return fmt.Sprintf("Instance %s %s does not define those variables",
 				i.PlaybookID,
-				i.ID)
+				i.ID), &InvalidSetVar{}
 		}
 	}
 	_, err = c.is.Update(i)
