@@ -34,7 +34,10 @@ type setvarCommand struct {
 }
 
 func (c *setvarCommand) Execute() (string, error) {
-	kvs := c.args[3:len(c.args)] // from e.g. "setvar foo bar var1=val1 var2=val2"
+	if len(c.args) < 4 {
+		return "", &InvalidSetVar{}
+	}
+	kvs := c.args[3:] // from e.g. "setvar foo bar var1=val1 var2=val2"
 	i, err := c.is.Show(c.args[1], c.args[2])
 	var commandMsg string
 	if err != nil {

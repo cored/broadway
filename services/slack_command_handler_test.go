@@ -55,6 +55,14 @@ func TestSetvarExecute(t *testing.T) {
 			"",
 			&InvalidSetVar{},
 		},
+		{
+			"When just the setvar command is sent",
+			"setvar",
+			&instance.Instance{PlaybookID: "barbar", ID: "foofoo"},
+			nil,
+			"",
+			&InvalidSetVar{},
+		},
 	}
 
 	for _, testcase := range testcases {
