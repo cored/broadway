@@ -208,8 +208,7 @@ func (s *Server) postCommand(c *gin.Context) {
 	msg, err := slackCommand.Execute()
 
 	if err != nil {
-		glog.Error(err)
-		c.JSON(http.StatusInternalServerError, InternalError)
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 	c.String(http.StatusOK, msg)

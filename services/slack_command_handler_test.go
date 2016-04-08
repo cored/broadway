@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/namely/broadway/instance"
@@ -17,44 +16,60 @@ func TestSetvarExecute(t *testing.T) {
 	}
 	is.repo.Save(i)
 	testcases := []struct {
-		Scenario    string
-		Arguments   []string
-		Expected    map[string]string
-		ExpectedMsg string
-		E           error
+		Scenario     string
+		Arguments    string
+		Instance     *instance.Instance
+		ExpectedVars map[string]string
+		ExpectedMsg  string
+		E            error
 	}{
 		{
-			"When a valid set of arguments been passed",
-			[]string{"setvar", "foo", "bar", "var1=val1"},
+			"When a playbook defines a variable for an instance",
+			"setvar foo bar var1=val1",
+			&instance.Instance{PlaybookID: "foo", ID: "bar", Vars: map[string]string{"var1": "val2"}},
 			map[string]string{"var1": "val1"},
 			"Instance foo bar updated it's variables",
 			nil,
 		},
 		{
+			"When a playbook does not defines a variable for an instance",
+			"setvar foo bar newvar=val1",
+			&instance.Instance{PlaybookID: "foo", ID: "bar", Vars: map[string]string{"var1": "val2"}},
+			map[string]string{"var1": "val2"},
+			"Instance foo bar updated it's variables",
+			nil,
+		},
+		{
 			"When an argument text just has a key",
-			[]string{"setvar", "foo", "bar", "var1="},
-			map[string]string{},
+			"setvar foobar barfoo var1=",
+			&instance.Instance{PlaybookID: "foobar", ID: "barfoo"},
+			nil,
 			"",
-			errors.New("This is not the proper syntax. ex: var1=val1"),
+			&InvalidSetVar{},
 		},
 		{
 			"When an argument text just has a value",
-			[]string{"setvar", "foo", "bar", "=val1"},
-			map[string]string{},
+			"setvar barbar foofoo =val1",
+			&instance.Instance{PlaybookID: "barbar", ID: "foofoo"},
+			nil,
 			"",
-			errors.New("This is not the proper syntax. ex: var1=val1"),
+			&InvalidSetVar{},
 		},
 	}
 
 	for _, testcase := range testcases {
-		command := &setvarCommand{
-			args: testcase.Arguments,
-			is:   is,
+		_, err := is.Create(testcase.Instance)
+		command := BuildSlackCommand(testcase.Arguments, is)
+		if err != nil {
+			t.Log(err)
 		}
+
 		msg, err := command.Execute()
 		assert.Equal(t, testcase.ExpectedMsg, msg, testcase.Scenario)
 		assert.Equal(t, testcase.E, err, testcase.Scenario)
-		assert.Equal(t, testcase.Expected, command.Vars, testcase.Scenario)
+
+		updatedInstance, _ := is.Show(testcase.Instance.PlaybookID, testcase.Instance.ID)
+		assert.Equal(t, testcase.ExpectedVars, updatedInstance.Vars, testcase.Scenario)
 	}
 }
 
