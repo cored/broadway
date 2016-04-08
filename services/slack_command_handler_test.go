@@ -36,7 +36,7 @@ func TestSetvarExecute(t *testing.T) {
 			"setvar foo bar newvar=val1",
 			&instance.Instance{PlaybookID: "foo", ID: "bar", Vars: map[string]string{"var1": "val2"}},
 			map[string]string{"var1": "val2"},
-			"Instance foo bar updated it's variables",
+			"Instance foo bar does not define those variables",
 			nil,
 		},
 		{
@@ -76,19 +76,28 @@ func TestSetvarExecute(t *testing.T) {
 func TestHelpExecute(t *testing.T) {
 	testcases := []struct {
 		Scenario string
+		Args     string
 		Expected string
 		E        error
 	}{
 		{
 			"When passing help command",
+			"help",
+			`/broadway help: This message
+/broadway deploy myPlaybookID myInstanceID: Deploy a new instance`,
+			nil,
+		},
+		{
+			"When non existent command",
+			"none",
 			`/broadway help: This message
 /broadway deploy myPlaybookID myInstanceID: Deploy a new instance`,
 			nil,
 		},
 	}
-
+	is := NewInstanceService(store.New())
 	for _, testcase := range testcases {
-		command := &helpCommand{}
+		command := BuildSlackCommand(testcase.Args, is)
 		msg, err := command.Execute()
 		assert.Nil(t, err)
 		assert.Equal(t, testcase.Expected, msg)

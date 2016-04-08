@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -250,9 +251,15 @@ func TestSlackCommandSetvar(t *testing.T) {
 	form.Set("text", "setvar boing bar var1=val1")
 	req.PostForm = form
 
+	i := &instance.Instance{PlaybookID: "boing", ID: "bar", Vars: map[string]string{"var1": "val2"}}
+	is := services.NewInstanceService(store.New())
+	_, err := is.Create(i)
+	if err != nil {
+		t.Log(err)
+	}
 	server.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code, "Expected /broadway help to be 200")
-	assert.Equal(t, w.Body.String(), "Instance boing bar updated it's variables", "Expected message")
+	assert.Equal(t, http.StatusOK, w.Code, "Expected slack command to be 200")
+	assert.Equal(t, w.Body.String(), fmt.Sprintf("Instance %s %s updated it's variables", i.PlaybookID, i.ID), "Expected message")
 }
 
 func TestPostCommandDeployBad(t *testing.T) {

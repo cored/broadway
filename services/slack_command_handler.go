@@ -35,6 +35,7 @@ type setvarCommand struct {
 func (c *setvarCommand) Execute() (string, error) {
 	kvs := c.args[3:len(c.args)] // from e.g. "setvar foo bar var1=val1 var2=val2"
 	i, err := c.is.Show(c.args[1], c.args[2])
+	var commandMsg string
 	if err != nil {
 		glog.Warningf("Cannot setvars for not found instance %s/%s\n", c.args[1], c.args[2])
 		return "", err
@@ -49,16 +50,20 @@ func (c *setvarCommand) Execute() (string, error) {
 		}
 		if _, ok := i.Vars[tmp[0]]; ok {
 			i.Vars[tmp[0]] = tmp[1]
+			commandMsg = fmt.Sprintf("Instance %s %s updated it's variables",
+				i.PlaybookID,
+				i.ID)
+		} else {
+			commandMsg = fmt.Sprintf("Instance %s %s does not define those variables",
+				i.PlaybookID,
+				i.ID)
 		}
 	}
-	updatedInstance, err := c.is.Update(i)
+	_, err = c.is.Update(i)
 	if err != nil {
 		glog.Errorf("Failed to save instance %s/%s with new vars\n", c.args[1], c.args[2])
 		return "", err
 	}
-	commandMsg := fmt.Sprintf("Instance %s %s updated it's variables",
-		updatedInstance.PlaybookID,
-		updatedInstance.ID)
 	return commandMsg, nil
 }
 
@@ -79,5 +84,4 @@ func BuildSlackCommand(payload string, is *InstanceService) SlackCommand {
 	default:
 		return &helpCommand{}
 	}
-	return nil
 }
