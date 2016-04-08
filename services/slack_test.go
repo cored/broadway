@@ -91,15 +91,13 @@ func TestHelpExecute(t *testing.T) {
 		{
 			"When passing help command",
 			"help",
-			`/broadway help: This message
-/broadway deploy myPlaybookID myInstanceID: Deploy a new instance`,
+			CommandHints,
 			nil,
 		},
 		{
 			"When non existent command",
 			"none",
-			`/broadway help: This message
-/broadway deploy myPlaybookID myInstanceID: Deploy a new instance`,
+			CommandHints,
 			nil,
 		},
 	}

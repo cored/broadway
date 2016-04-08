@@ -69,12 +69,14 @@ func (c *setvarCommand) Execute() (string, error) {
 	return commandMsg, nil
 }
 
+const CommandHints = `/broadway help: This message
+/broadway deploy myPlaybookID myInstanceID: Deploy a new instance`
+
 // Help slack command
 type helpCommand struct{}
 
 func (c *helpCommand) Execute() (string, error) {
-	return `/broadway help: This message
-/broadway deploy myPlaybookID myInstanceID: Deploy a new instance`, nil
+	return CommandHints, nil
 }
 
 // BuildSlackCommand takes a string and some context and creates a SlackCommand
