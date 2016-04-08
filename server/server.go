@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/golang/glog"
 	"github.com/namely/broadway/deployment"
@@ -78,12 +79,16 @@ func (s *Server) Init() {
 func (s *Server) setupHandlers() {
 	s.engine = gin.Default()
 	gin.SetMode(gin.ReleaseMode) // Comment this to use debug mode for more verbose output
+	// Define routes:
+	s.engine.POST("/command", s.postCommand)
+	s.engine.GET("/command", s.getCommand)
+	// Protect subsequent routes with middleware:
+	s.engine.Use(authMiddleware)
+	s.engine.GET("/", s.home)
 	s.engine.POST("/instances", s.createInstance)
 	s.engine.GET("/instance/:playbookID/:instanceID", s.getInstance)
 	s.engine.GET("/instances/:playbookID", s.getInstances)
 	s.engine.GET("/status/:playbookID/:instanceID", s.getStatus)
-	s.engine.POST("/command", s.postCommand)
-	s.engine.GET("/command", s.getCommand)
 	s.engine.POST("/deploy/:playbookID/:instanceID", s.deployInstance)
 }
 
@@ -95,6 +100,25 @@ func (s *Server) Handler() http.Handler {
 // Run starts the server on the specified address
 func (s *Server) Run(addr ...string) error {
 	return s.engine.Run(addr...)
+}
+
+func authMiddleware(c *gin.Context) {
+	a := c.Request.Header.Get("Authorization")
+	a = strings.TrimPrefix(a, "Bearer ")
+	if a != env.AuthBearerToken {
+		if len(a) == 0 {
+			c.String(http.StatusUnauthorized, "Unauthorized: Missing Authorization header")
+		} else {
+			c.String(http.StatusUnauthorized, "Unauthorized: Wrong Authorization header")
+		}
+		glog.Infof("Auth failure for %s\nExpected: %s Actual: %s\n", c.Request.URL.Path, env.AuthBearerToken, a)
+		return
+	}
+	c.Next()
+}
+
+func (s *Server) home(c *gin.Context) {
+	c.String(http.StatusOK, "Welcome to Broadway!")
 }
 
 func (s *Server) createInstance(c *gin.Context) {

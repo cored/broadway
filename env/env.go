@@ -7,6 +7,8 @@ import (
 )
 
 var (
+	// AuthBearerToken is a global token required for all requests except GET/POST command/
+	AuthBearerToken string
 	// SlackToken contains the expected Slack custom command token.
 	SlackToken string
 
@@ -34,6 +36,7 @@ var (
 
 // LoadEnvs sets env.* variables to their OS-provided value
 func LoadEnvs() {
+	AuthBearerToken = loadw("BROADWAY_AUTH_TOKEN")
 	SlackWebhook = loadw("SLACK_WEBHOOK")
 	SlackToken = loadw("SLACK_VERIFICATION_TOKEN")
 	ServerHost = loadw("HOST")
