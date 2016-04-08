@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
+	"github.com/namely/broadway/deployment"
+	"github.com/namely/broadway/instance"
 )
 
 // SlackCommand represents a user command that came in from Slack
@@ -29,8 +31,9 @@ func (ce *InvalidSetVar) Error() string {
 }
 
 type setvarCommand struct {
-	args []string
-	is   *InstanceService
+	args      []string
+	playbooks map[string]*deployment.Playbook
+	is        *InstanceService
 }
 
 func (c *setvarCommand) Execute() (string, error) {
@@ -50,15 +53,20 @@ func (c *setvarCommand) Execute() (string, error) {
 			glog.Warning("Setvar tried to parse badly formatted variable: " + kv)
 			return "", &InvalidSetVar{}
 		}
-		if _, ok := i.Vars[tmp[0]]; ok {
-			i.Vars[tmp[0]] = tmp[1]
-			commandMsg = fmt.Sprintf("Instance %s %s updated it's variables",
-				i.PlaybookID,
-				i.ID)
+		if c.playbookContainsVars(i) {
+			if _, ok := i.Vars[tmp[0]]; ok {
+				i.Vars[tmp[0]] = tmp[1]
+				commandMsg = fmt.Sprintf("Instance %s %s updated it's variables",
+					i.PlaybookID,
+					i.ID)
+			} else {
+				return fmt.Sprintf("Instance %s %s does not define those variables",
+					i.PlaybookID,
+					i.ID), &InvalidSetVar{}
+			}
 		} else {
-			return fmt.Sprintf("Instance %s %s does not define those variables",
-				i.PlaybookID,
-				i.ID), &InvalidSetVar{}
+			return fmt.Sprintf("Playbook %s does not define those variables",
+				i.PlaybookID), &InvalidSetVar{}
 		}
 	}
 	_, err = c.is.Update(i)
@@ -67,6 +75,18 @@ func (c *setvarCommand) Execute() (string, error) {
 		return "", err
 	}
 	return commandMsg, nil
+}
+
+func (c *setvarCommand) playbookContainsVars(i *instance.Instance) bool {
+	if _, ok := c.playbooks[i.PlaybookID]; ok {
+		playbook := c.playbooks[i.PlaybookID]
+		for _, playbookVar := range playbook.Vars {
+			if _, ok := i.Vars[playbookVar]; ok {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // CommandHints slack commands help hints
@@ -81,11 +101,11 @@ func (c *helpCommand) Execute() (string, error) {
 }
 
 // BuildSlackCommand takes a string and some context and creates a SlackCommand
-func BuildSlackCommand(payload string, is *InstanceService) SlackCommand {
+func BuildSlackCommand(payload string, is *InstanceService, playbooks map[string]*deployment.Playbook) SlackCommand {
 	terms := strings.Split(payload, " ")
 	switch terms[0] {
 	case "setvar": // setvar foo bar var1=val1 var2=val2
-		return &setvarCommand{args: terms, is: is}
+		return &setvarCommand{args: terms, is: is, playbooks: playbooks}
 	default:
 		return &helpCommand{}
 	}

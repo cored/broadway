@@ -202,7 +202,7 @@ func (s *Server) postCommand(c *gin.Context) {
 		return
 	}
 	is := services.NewInstanceService(s.store)
-	slackCommand := services.BuildSlackCommand(form.Text, is)
+	slackCommand := services.BuildSlackCommand(form.Text, is, s.playbooks)
 	msg, err := slackCommand.Execute()
 
 	if err != nil {

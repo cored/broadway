@@ -3,6 +3,7 @@ package services
 import (
 	"testing"
 
+	"github.com/namely/broadway/deployment"
 	"github.com/namely/broadway/instance"
 	"github.com/namely/broadway/store"
 	"github.com/stretchr/testify/assert"
@@ -19,46 +20,61 @@ func TestSetvarExecute(t *testing.T) {
 		Scenario     string
 		Arguments    string
 		Instance     *instance.Instance
+		Playbooks    map[string]*deployment.Playbook
 		ExpectedVars map[string]string
 		ExpectedMsg  string
 		E            error
 	}{
 		{
-			"When a playbook defines a variable for an instance",
+			"When an instance and playbook defines a variable",
 			"setvar foo bar var1=val1",
 			&instance.Instance{PlaybookID: "foo", ID: "bar", Vars: map[string]string{"var1": "val2"}},
+			map[string]*deployment.Playbook{"foo": &deployment.Playbook{ID: "foo", Vars: []string{"var1"}}},
 			map[string]string{"var1": "val1"},
 			"Instance foo bar updated it's variables",
 			nil,
 		},
 		{
-			"When a playbook does not defines a variable for an instance",
+			"When an instance does not defines a variable",
 			"setvar foo bar newvar=val1",
 			&instance.Instance{PlaybookID: "foo", ID: "bar", Vars: map[string]string{"var1": "val2"}},
+			map[string]*deployment.Playbook{"foo": &deployment.Playbook{ID: "foo", Vars: []string{"var1"}}},
 			map[string]string{"var1": "val2"},
 			"Instance foo bar does not define those variables",
+			&InvalidSetVar{},
+		},
+		{
+			"When the instance's playbook does not defines a variable",
+			"setvar foo bar newvar=val1",
+			&instance.Instance{PlaybookID: "foo", ID: "bar", Vars: map[string]string{"newvar": "val2"}},
+			map[string]*deployment.Playbook{"foo": &deployment.Playbook{ID: "foo", Vars: []string{""}}},
+			map[string]string{"newvar": "val2"},
+			"Playbook foo does not define those variables",
 			&InvalidSetVar{},
 		},
 		{
 			"When an argument text just has a key",
 			"setvar foobar barfoo var1=",
 			&instance.Instance{PlaybookID: "foobar", ID: "barfoo"},
+			map[string]*deployment.Playbook{"foo": &deployment.Playbook{ID: "foobar", Vars: []string{"var1"}}},
 			nil,
-			"Instance foobar barfoo does not define those variables",
+			"Playbook foobar does not define those variables",
 			&InvalidSetVar{},
 		},
 		{
-			"When an argument text just has a value",
+			"When the argument just have a value",
 			"setvar barbar foofoo =val1",
 			&instance.Instance{PlaybookID: "barbar", ID: "foofoo"},
+			map[string]*deployment.Playbook{"foo": &deployment.Playbook{ID: "foo", Vars: []string{"var1"}}},
 			nil,
-			"Instance barbar foofoo does not define those variables",
+			"Playbook barbar does not define those variables",
 			&InvalidSetVar{},
 		},
 		{
 			"When just the setvar command is sent",
 			"setvar",
 			&instance.Instance{PlaybookID: "barbar", ID: "foofoo"},
+			map[string]*deployment.Playbook{"foo": &deployment.Playbook{ID: "foo", Vars: []string{""}}},
 			nil,
 			"",
 			&InvalidSetVar{},
@@ -67,7 +83,7 @@ func TestSetvarExecute(t *testing.T) {
 
 	for _, testcase := range testcases {
 		_, err := is.Create(testcase.Instance)
-		command := BuildSlackCommand(testcase.Arguments, is)
+		command := BuildSlackCommand(testcase.Arguments, is, testcase.Playbooks)
 		if err != nil {
 			t.Log(err)
 		}
@@ -103,7 +119,7 @@ func TestHelpExecute(t *testing.T) {
 	}
 	is := NewInstanceService(store.New())
 	for _, testcase := range testcases {
-		command := BuildSlackCommand(testcase.Args, is)
+		command := BuildSlackCommand(testcase.Args, is, nil)
 		msg, err := command.Execute()
 		assert.Nil(t, err)
 		assert.Equal(t, testcase.Expected, msg)
