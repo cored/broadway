@@ -69,6 +69,7 @@ func (c *setvarCommand) Execute() (string, error) {
 	return commandMsg, nil
 }
 
+// CommandHints slack commands help hints
 const CommandHints = `/broadway help: This message
 /broadway deploy myPlaybookID myInstanceID: Deploy a new instance`
 
