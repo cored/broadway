@@ -21,6 +21,7 @@ func (c *deployCommand) Execute() error {
 	return errors.New("foo")
 }
 
+// InvalidSetVar error presentation for invalid setvar syntax
 type InvalidSetVar struct{}
 
 func (ce *InvalidSetVar) Error() string {
