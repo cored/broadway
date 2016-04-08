@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -259,7 +258,6 @@ func TestSlackCommandSetvar(t *testing.T) {
 	}
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code, "Expected slack command to be 200")
-	assert.Equal(t, w.Body.String(), fmt.Sprintf("Instance %s %s updated it's variables", i.PlaybookID, i.ID), "Expected message")
 }
 
 func TestPostCommandDeployBad(t *testing.T) {
