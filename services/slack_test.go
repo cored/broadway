@@ -35,6 +35,15 @@ func TestSetvarExecute(t *testing.T) {
 			nil,
 		},
 		{
+			"When an instance and playbook defines the same variables",
+			"setvar foo bar var1=val1 var2=val2",
+			&instance.Instance{PlaybookID: "foo", ID: "bar", Vars: map[string]string{"var1": "val2", "var2": "val1"}},
+			map[string]*deployment.Playbook{"foo": &deployment.Playbook{ID: "foo", Vars: []string{"var1", "var2"}}},
+			map[string]string{"var1": "val1", "var2": "val2"},
+			"Instance foo bar updated it's variables",
+			nil,
+		},
+		{
 			"When the instance's playbook does not defines a variable",
 			"setvar foo bar newvar=val1",
 			&instance.Instance{PlaybookID: "foo", ID: "bar", Vars: map[string]string{"newvar": "val2"}},
