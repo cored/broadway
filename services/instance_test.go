@@ -82,7 +82,10 @@ func TestUpdate(t *testing.T) {
 	}
 
 	for _, testcase := range testcases {
-		createdInstance, _ := instanceService.Create(testcase.Instance)
+		createdInstance, err := instanceService.Create(testcase.Instance)
+		if err != nil {
+			t.Fail()
+		}
 		createdInstance.PlaybookID = testcase.ExpectedPlaybookID
 		createdInstance.ID = testcase.ExpectedID
 		createdInstance.Vars = testcase.ExpectedVars
