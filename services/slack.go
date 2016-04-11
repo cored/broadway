@@ -82,14 +82,15 @@ func (c *setvarCommand) playbookContainsVar(playbookID, name string) bool {
 }
 
 // CommandHints slack commands help hints
-const CommandHints = `/broadway help: This message
-/broadway deploy myPlaybookID myInstanceID: Deploy a new instance`
+const commandHints = `/broadway help: This message
+/broadway deploy myPlaybookID myInstanceID: Deploy a new instance
+/broadway setvar myPlaybookID myInstanceID var1=val1 githash=8ad33dad env=prod`
 
 // Help slack command
 type helpCommand struct{}
 
 func (c *helpCommand) Execute() (string, error) {
-	return CommandHints, nil
+	return commandHints, nil
 }
 
 // BuildSlackCommand takes a string and some context and creates a SlackCommand

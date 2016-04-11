@@ -98,13 +98,17 @@ func TestHelpExecute(t *testing.T) {
 		{
 			"When passing help command",
 			"help",
-			CommandHints,
+			`/broadway help: This message
+/broadway deploy myPlaybookID myInstanceID: Deploy a new instance
+/broadway setvar myPlaybookID myInstanceID var1=val1 githash=8ad33dad env=prod`,
 			nil,
 		},
 		{
 			"When non existent command",
 			"none",
-			CommandHints,
+			`/broadway help: This message
+/broadway deploy myPlaybookID myInstanceID: Deploy a new instance
+/broadway setvar myPlaybookID myInstanceID var1=val1 githash=8ad33dad env=prod`,
 			nil,
 		},
 	}
