@@ -103,10 +103,10 @@ func (is *InstanceService) Create(i *instance.Instance) (*instance.Instance, err
 	if err != nil {
 		return nil, err
 	}
-	err = sendCreationNotification(i)
-	if err != nil {
-		return nil, err
-	}
+	// err = sendCreationNotification(i)
+	// if err != nil {
+	// 	return nil, err
+	// }
 	return i, nil
 }
 

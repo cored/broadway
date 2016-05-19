@@ -50,6 +50,25 @@ func TestCreateInstanceNotification(t *testing.T) {
 	assert.Contains(t, nt.requestBody, "TestCreateInstanceNotification")
 }
 
+func TestCreateExistingInstanceNotChangeStatus(t *testing.T) {
+	nt := newNotificationTestHelper()
+	defer nt.Close()
+	store := store.New()
+	is := NewInstanceService(store)
+
+	i := &instance.Instance{PlaybookID: "helloplaybook", ID: "TestCreateInstance"}
+	ii, err := is.Create(i)
+	assert.Nil(t, err)
+	ii.Status = instance.StatusDeployed
+	updatedInstance, err := is.Update(ii)
+	if err != nil {
+		t.Fatal(err)
+	}
+	createdInstance, err := is.Create(updatedInstance)
+	assert.Nil(t, err)
+	assert.Equal(t, instance.StatusDeployed, createdInstance.Status)
+}
+
 func TestCreateInstanceCustomNotification(t *testing.T) {
 	nt := newNotificationTestHelper()
 	defer nt.Close()
