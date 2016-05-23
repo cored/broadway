@@ -99,14 +99,18 @@ func (is *InstanceService) Create(i *instance.Instance) (*instance.Instance, err
 	// This is seconds resolution, multiply by 1000 for javascript ms timestamp:
 	i.Created = time.Now().Unix()
 
+	foundInstance, err := is.repo.FindByID(i.PlaybookID, i.ID)
+	if err == nil {
+		i.Status = foundInstance.Status
+	}
 	err = is.repo.Save(i)
 	if err != nil {
 		return nil, err
 	}
-	// err = sendCreationNotification(i)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	err = sendCreationNotification(i)
+	if err != nil {
+		return nil, err
+	}
 	return i, nil
 }
 
