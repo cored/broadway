@@ -64,7 +64,7 @@ func TestCreateExistingInstanceNotChangeStatus(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	createdInstance, err := is.Create(updatedInstance)
+	createdInstance, err := is.Create(ii)
 	assert.Nil(t, err)
 	assert.Equal(t, instance.StatusDeployed, createdInstance.Status)
 }
@@ -104,6 +104,10 @@ func TestCreateInstance(t *testing.T) {
 	is := NewInstanceService(store)
 
 	i := &instance.Instance{PlaybookID: "helloplaybook", ID: "TestCreateInstance"}
+	err := is.Delete(i)
+	if err != nil {
+		t.Fail(err)
+	}
 	ii, err := is.Create(i)
 	assert.Nil(t, err)
 	assert.Equal(t, "helloplaybook", ii.PlaybookID)
