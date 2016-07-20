@@ -50,11 +50,24 @@ func TestFindByPath(t *testing.T) {
 			ExpectedPlaybookID: "test",
 			ExpectedError:      nil,
 		},
+		{
+			Scenario: "When the instance was not properly save",
+			Path:     NewPath("etcdPath", "test", "id"),
+			Store: &FakeStore{
+				MockValue: func(path string) string {
+					return `{"playbook_id":}`
+				},
+			},
+			ExpectedPlaybookID: "",
+			ExpectedError:      ErrMalformedSaveData,
+		},
 	}
 
 	for _, tc := range testcases {
 		returnedInstance, err := FindByPath(tc.Store, tc.Path)
 		assert.Equal(t, tc.ExpectedError, err, tc.Scenario)
-		assert.Equal(t, tc.ExpectedPlaybookID, returnedInstance.PlaybookID)
+		if err == nil {
+			assert.Equal(t, tc.ExpectedPlaybookID, returnedInstance.PlaybookID)
+		}
 	}
 }
