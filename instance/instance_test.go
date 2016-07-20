@@ -61,6 +61,17 @@ func TestFindByPath(t *testing.T) {
 			ExpectedPlaybookID: "",
 			ExpectedError:      ErrMalformedSaveData,
 		},
+		{
+			Scenario: "When the instance does not exist",
+			Path:     NewPath("etcdPath", "test", "id"),
+			Store: &FakeStore{
+				MockValue: func(path string) string {
+					return ""
+				},
+			},
+			ExpectedPlaybookID: "",
+			ExpectedError:      NotFoundError("etcdPath/instances/test/id"),
+		},
 	}
 
 	for _, tc := range testcases {
