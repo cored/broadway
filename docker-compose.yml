@@ -10,7 +10,7 @@ services:
       BROADWAY_PLAYBOOKS_PATH: "/go/src/github.com/namely/broadway/examples/playbooks"
       BROADWAY_MANIFESTS_PATH: "/go/src/github.com/namely/broadway/examples/manifests"
       SLACK_WEBHOOK: ""
-      ETCD_ENDPOINTS: "http://localhost:4001"
+      ETCD_ENDPOINTS: "http://127.0.0.1:4001"
       ETCD_PATH: "/broadway"
       HOST: ":3000"
       KUBERNETES_NAMESPACE: "broadway"
@@ -25,7 +25,7 @@ services:
       BROADWAY_PLAYBOOKS_PATH: "/go/src/github.com/namely/broadway/examples/playbooks"
       BROADWAY_MANIFESTS_PATH: "/go/src/github.com/namely/broadway/examples/manifests"
       SLACK_WEBHOOK: ""
-      ETCD_ENDPOINTS: "http://localhost:4001"
+      ETCD_ENDPOINTS: "http://127.0.0.1:4001"
       ETCD_PATH: "/broadwaytest"
       HOST: ":3000"
       KUBERNETES_NAMESPACE: "broadway"
@@ -34,7 +34,7 @@ services:
   etcd:
     image: gcr.io/google_containers/etcd:2.2.1
     network_mode: host
-    command: ['/usr/local/bin/etcd', '--addr=127.0.0.1:4001', '--bind-addr=0.0.0.0:4001', '--data-dir=/var/etcd/data']
+    command: ['/usr/local/bin/etcd', '--bind-addr=0.0.0.0:4001', '--data-dir=/var/etcd/data']
 
   master:
     image: gcr.io/google_containers/hyperkube:v1.2.4
@@ -48,7 +48,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /var/lib/kubelet/:/var/lib/kubelet:rw
       - /var/run:/var/run:rw
-    command: ['/hyperkube', 'kubelet', '--containerized', '--hostname-override=127.0.0.1', '--address=0.0.0.0', '--api-servers=http://localhost:8080', '--config=/etc/kubernetes/manifests', '--cluster-dns=10.0.0.10', '--cluster-domain=cluster.local']
+    command: ['/hyperkube', 'kubelet', '--containerized', '--hostname-override=127.0.0.1', '--address=127.0.0.1', '--api-servers=http://127.0.0.1:8080', '--config=/etc/kubernetes/manifests', '--cluster-dns=10.0.0.10', '--cluster-domain=cluster.local']
 
   proxy:
     image: gcr.io/google_containers/hyperkube:v1.2.4
@@ -65,4 +65,4 @@ services:
   skydns:
     image: gcr.io/google_containers/skydns:2015-10-13-8c72f8c
     network_mode: host
-    command: ['--machines=http://localhost:4001', '--addr=0.0.0.0:53', '--domain=cluster.local', '-ns-rotate=false']
+    command: ['--machines=http://127.0.0.1:4001', '--addr=127.0.0.1:53', '--domain=cluster.local', '-ns-rotate=false']
