@@ -25,13 +25,28 @@ type Path struct {
 	id         string
 }
 
-// NewPath constructor for a path
+// NewPath constructor for a Path
 func NewPath(rootPath, playbookID, id string) Path {
 	return Path{rootPath, playbookID, id}
 }
 
 func (p Path) String() string {
 	return fmt.Sprintf("%s/instances/%s/%s", p.rootPath, p.playbookID, p.id)
+}
+
+// PlaybookPath represents a path for a playbook
+type PlaybookPath struct {
+	rootPath   string
+	playbookID string
+}
+
+// NewPlaybookPath constructor for a new PlaybookPath
+func NewPlaybookPath(rootPath, playbookID string) PlaybookPath {
+	return PlaybookPath{rootPath, playbookID}
+}
+
+func (pp PlaybookPath) String() string {
+	return fmt.Sprintf("%s/instances/%s", pp.rootPath, pp.playbookID)
 }
 
 // Instance entity
@@ -75,13 +90,35 @@ func (i *Instance) JSON() (string, error) {
 
 // FindByPath find an instance based on it's path
 func FindByPath(store store.Store, path Path) (*Instance, error) {
-	var instance Instance
-
 	i := store.Value(path.String())
 	if i == "" {
 		return nil, NotFoundError(path.String())
 	}
-	err := json.Unmarshal([]byte(i), &instance)
+	instance, err := fromJSON(i)
+	if err != nil {
+		return nil, err
+	}
+	return instance, nil
+}
+
+// FindByPlaybookID find all the instances for an specified playbook path
+func FindByPlaybookID(store store.Store, playbookPath PlaybookPath) ([]*Instance, error) {
+	data := store.Values(playbookPath.String())
+	instances := []*Instance{}
+	for _, value := range data {
+		instance, err := fromJSON(value)
+		if err != nil {
+			return instances, err
+		}
+		instances = append(instances, instance)
+	}
+
+	return instances, nil
+}
+
+func fromJSON(jsonData string) (*Instance, error) {
+	var instance Instance
+	err := json.Unmarshal([]byte(jsonData), &instance)
 	if err != nil {
 		return nil, ErrMalformedSaveData
 	}

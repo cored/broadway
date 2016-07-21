@@ -82,3 +82,33 @@ func TestFindByPath(t *testing.T) {
 		}
 	}
 }
+
+func TestFindByPlaybookID(t *testing.T) {
+	testcases := []struct {
+		Scenario          string
+		Store             store.Store
+		PlaybookPath      PlaybookPath
+		ExpectedInstances []*Instance
+		ExpectedError     error
+	}{
+		{
+			Scenario: "When instances exist in the store",
+			Store: &FakeStore{
+				MockValues: func(string) map[string]string {
+					return map[string]string{
+						"rootPath/instances/test": `{"playbook_id": "test", "id": "id", "status": "deployed"}`,
+					}
+				},
+			},
+			PlaybookPath: NewPlaybookPath("rootPath", "test"),
+			ExpectedInstances: []*Instance{
+				&Instance{PlaybookID: "test", ID: "id", Status: StatusDeployed},
+			},
+			ExpectedError: nil,
+		},
+	}
+	for _, tc := range testcases {
+		_, err := FindByPlaybookID(tc.Store, tc.PlaybookPath)
+		assert.Equal(t, tc.ExpectedError, err, tc.Scenario)
+	}
+}
