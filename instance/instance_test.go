@@ -8,29 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type FakeStore struct {
-	MockSetValue func(path, value string) error
-	MockValue    func(path string) string
-	MockValues   func(path string) map[string]string
-	MockDelete   func(path string) error
-}
-
-func (fs *FakeStore) SetValue(path, value string) error {
-	return fs.MockSetValue(path, value)
-}
-
-func (fs *FakeStore) Value(path string) string {
-	return fs.MockValue(path)
-}
-
-func (fs *FakeStore) Values(path string) map[string]string {
-	return fs.MockValues(path)
-}
-
-func (fs *FakeStore) Delete(path string) error {
-	return fs.MockDelete(path)
-}
-
 func TestFindByPath(t *testing.T) {
 	testcases := []struct {
 		Scenario           string
@@ -42,7 +19,7 @@ func TestFindByPath(t *testing.T) {
 		{
 			Scenario: "When the instance is properly save",
 			Path:     NewPath("etcdPath", "test", "id"),
-			Store: &FakeStore{
+			Store: &store.FakeStore{
 				MockValue: func(path string) string {
 					return `{"playbook_id":"test", "id": "id", "status": "deployed"}`
 				},
@@ -53,7 +30,7 @@ func TestFindByPath(t *testing.T) {
 		{
 			Scenario: "When the instance was not properly save",
 			Path:     NewPath("etcdPath", "test", "id"),
-			Store: &FakeStore{
+			Store: &store.FakeStore{
 				MockValue: func(path string) string {
 					return `{"playbook_id":}`
 				},
@@ -64,7 +41,7 @@ func TestFindByPath(t *testing.T) {
 		{
 			Scenario: "When the instance does not exist",
 			Path:     NewPath("etcdPath", "test", "id"),
-			Store: &FakeStore{
+			Store: &store.FakeStore{
 				MockValue: func(path string) string {
 					return ""
 				},
@@ -93,7 +70,7 @@ func TestFindByPlaybookID(t *testing.T) {
 	}{
 		{
 			Scenario: "When instances exist in the store",
-			Store: &FakeStore{
+			Store: &store.FakeStore{
 				MockValues: func(string) map[string]string {
 					return map[string]string{
 						"rootPath/instances/test": `{"playbook_id": "test", "id": "id", "status": "deployed"}`,
