@@ -80,7 +80,7 @@ func (d *DeploymentService) DeployAndNotify(i *instance.Instance) error {
 	}
 
 	i.Status = instance.StatusDeploying
-	err = instance.Save(d.s, i)
+	err = instance.Save(d.store, i)
 	if err != nil {
 		glog.Errorf("Failed to save instance status Deploying for %s/%s, continuing deployment. Error: %s\n", i.PlaybookID, i.ID, err.Error())
 	}
@@ -89,7 +89,7 @@ func (d *DeploymentService) DeployAndNotify(i *instance.Instance) error {
 	if errD != nil {
 		// Mark the instance as problematic:
 		i.Status = instance.StatusError
-		err := instance.Save(d.s, i)
+		err := instance.Save(d.store, i)
 		if err != nil {
 			glog.Errorf("Failed to save instance.StatusError for %s/%s; not sending notification:\n%s\n", i.PlaybookID, i.ID, err.Error())
 			return err
@@ -114,7 +114,7 @@ func (d *DeploymentService) DeployAndNotify(i *instance.Instance) error {
 	}
 
 	i.Status = instance.StatusDeployed
-	err = instance.Save(d.s, i)
+	err = instance.Save(d.store, i)
 	if err != nil {
 		glog.Errorf("DeploymentService failed to save instance status Deployed for %s/%s:\n%s\n", i.PlaybookID, i.ID, err.Error())
 		return err
@@ -177,7 +177,7 @@ func (d *DeploymentService) DeleteAndNotify(i *instance.Instance) error {
 	}
 
 	i.Status = instance.StatusDeleting
-	err = instance.Save(d.s, i)
+	err = instance.Save(d.store, i)
 	if err != nil {
 		glog.Errorf("Failed to save instance status Deleting for %s/%s. Error: %s\n", i.PlaybookID, i.ID, err.Error())
 		return err
@@ -194,7 +194,7 @@ func (d *DeploymentService) DeleteAndNotify(i *instance.Instance) error {
 	if errD != nil {
 		// Mark the instance as problematic:
 		i.Status = instance.StatusError
-		err := instance.Save(d.s, i)
+		err := instance.Save(d.store, i)
 		if err != nil {
 			glog.Errorf("Failed to save instance.StatusError for %s/%s; not sending notification:\n%s\n", i.PlaybookID, i.ID, err.Error())
 			return err
