@@ -9,6 +9,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/namely/broadway/deployment"
+	"github.com/namely/broadway/env"
 	"github.com/namely/broadway/instance"
 	"github.com/namely/broadway/notification"
 	"github.com/namely/broadway/store"
@@ -19,12 +20,13 @@ var validator = regexp.MustCompile(`^[a-zA-Z0-9\-]{1,253}$`)
 
 // InstanceService definition
 type InstanceService struct {
-	repo instance.Repository
+	repo  instance.Repository
+	store store.Store
 }
 
 // NewInstanceService creates a new instance service
 func NewInstanceService(s store.Store) *InstanceService {
-	return &InstanceService{repo: instance.NewRepo(s)}
+	return &InstanceService{repo: instance.NewRepo(s), store: s}
 }
 
 // PlaybookNotFound indicates a problem due to Broadway not knowing about a
@@ -78,7 +80,8 @@ func (is *InstanceService) CreateOrUpdate(i *instance.Instance) (*instance.Insta
 		return nil, err
 	}
 
-	existing, err := is.repo.FindByID(i.PlaybookID, i.ID)
+	path := instance.NewPath(env.EtcdPath, i.PlaybookID, i.ID)
+	existing, err := instance.FindByPath(is.store, path)
 	if err != nil {
 		switch err.(type) {
 		case instance.MalformedSavedData:
@@ -123,7 +126,7 @@ func (is *InstanceService) CreateOrUpdate(i *instance.Instance) (*instance.Insta
 	}
 	i.Vars = vars
 
-	err = is.repo.Save(i)
+	err = instance.Save(i)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +141,7 @@ func (is *InstanceService) CreateOrUpdate(i *instance.Instance) (*instance.Insta
 // Update an instance
 func (is *InstanceService) Update(i *instance.Instance) (*instance.Instance, error) {
 	glog.Info("Instance Service: Update")
-	err := is.repo.Save(i)
+	err := instance.Save(i)
 	if err != nil {
 		return nil, err
 	}

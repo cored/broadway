@@ -89,3 +89,27 @@ func TestFindByPlaybookID(t *testing.T) {
 		assert.Equal(t, tc.ExpectedError, err, tc.Scenario)
 	}
 }
+
+func TestSave(t *testing.T) {
+	testcases := []struct {
+		Scenario      string
+		Store         store.Store
+		Instance      *Instance
+		ExpectedError error
+	}{
+		{
+			Scenario: "When successfully save in store",
+			Store: &store.FakeStore{
+				MockSetValue: func(string, string) error {
+					return nil
+				},
+			},
+			Instance:      &Instance{PlaybookID: "playbookID", ID: "id"},
+			ExpectedError: nil,
+		},
+	}
+	for _, tc := range testcases {
+		err := Save(tc.Store, tc.Instance)
+		assert.Equal(t, tc.ExpectedError, err, tc.Scenario)
+	}
+}

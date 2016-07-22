@@ -56,6 +56,7 @@ type Instance struct {
 	Created    int64             `json:"created_time"`
 	Vars       map[string]string `json:"vars"`
 	Status     `json:"status"`
+	Path
 }
 
 // Status for an instance
@@ -116,6 +117,18 @@ func FindByPlaybookID(store store.Store, playbookPath PlaybookPath) ([]*Instance
 	return instances, nil
 }
 
+func Save(store store.Store, instance *Instance) error {
+	encoded, err := toJSON(instance)
+	if err != nil {
+		return err
+	}
+	err = store.SetValue(instance.Path.String(), encoded)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func fromJSON(jsonData string) (*Instance, error) {
 	var instance Instance
 	err := json.Unmarshal([]byte(jsonData), &instance)
@@ -123,4 +136,12 @@ func fromJSON(jsonData string) (*Instance, error) {
 		return nil, ErrMalformedSaveData
 	}
 	return &instance, nil
+}
+
+func toJSON(instance *Instance) (string, error) {
+	encoded, err := json.Marshal(instance)
+	if err != nil {
+		return "", err
+	}
+	return string(encoded), nil
 }
