@@ -20,13 +20,12 @@ var validator = regexp.MustCompile(`^[a-zA-Z0-9\-]{1,253}$`)
 
 // InstanceService definition
 type InstanceService struct {
-	repo  instance.Repository
 	store store.Store
 }
 
 // NewInstanceService creates a new instance service
 func NewInstanceService(s store.Store) *InstanceService {
-	return &InstanceService{repo: instance.NewRepo(s), store: s}
+	return &InstanceService{s}
 }
 
 // PlaybookNotFound indicates a problem due to Broadway not knowing about a
