@@ -82,8 +82,7 @@ func (is *InstanceService) CreateOrUpdate(i *instance.Instance) (*instance.Insta
 	path := instance.NewPath(env.EtcdPath, i.PlaybookID, i.ID)
 	existing, err := instance.FindByPath(is.store, path)
 	if err != nil {
-		switch err.(type) {
-		case instance.MalformedSavedData:
+		if err == instance.ErrMalformedSaveData
 			return nil, err
 		}
 		i.Created = time.Now().Unix()
