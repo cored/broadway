@@ -124,7 +124,7 @@ func (is *InstanceService) CreateOrUpdate(i *instance.Instance) (*instance.Insta
 	}
 	i.Vars = vars
 
-	err = instance.Save(i)
+	err = instance.Save(is.store, i)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (is *InstanceService) CreateOrUpdate(i *instance.Instance) (*instance.Insta
 // Update an instance
 func (is *InstanceService) Update(i *instance.Instance) (*instance.Instance, error) {
 	glog.Info("Instance Service: Update")
-	err := instance.Save(i)
+	err := instance.Save(is.store, i)
 	if err != nil {
 		return nil, err
 	}
@@ -159,8 +159,8 @@ func (is *InstanceService) Show(playbookID, ID string) (*instance.Instance, erro
 
 // AllWithPlaybookID returns all the instances for an specified playbook id
 func (is *InstanceService) AllWithPlaybookID(playbookID string) ([]*instance.Instance, error) {
-	playbookPath := NewPlaybookPath(env.EtcdPath, playbookID)
-	return instance.FindByPlaybookID(playbookPath)
+	playbookPath := instance.NewPlaybookPath(env.EtcdPath, playbookID)
+	return instance.FindByPlaybookID(is.store, playbookPath)
 }
 
 // Delete removes an instance
