@@ -117,6 +117,7 @@ func FindByPlaybookID(store store.Store, playbookPath PlaybookPath) ([]*Instance
 	return instances, nil
 }
 
+// Save an instance into the Store
 func Save(store store.Store, instance *Instance) error {
 	encoded, err := toJSON(instance)
 	if err != nil {
@@ -127,6 +128,11 @@ func Save(store store.Store, instance *Instance) error {
 		return err
 	}
 	return nil
+}
+
+// Delete an instance from the store
+func Delete(store store.Store, path Path) error {
+	return store.Delete(path.String())
 }
 
 func fromJSON(jsonData string) (*Instance, error) {

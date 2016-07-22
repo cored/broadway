@@ -151,7 +151,8 @@ func (is *InstanceService) Update(i *instance.Instance) (*instance.Instance, err
 // Show takes playbookID and instanceID and returns the matching Instance, if
 // any
 func (is *InstanceService) Show(playbookID, ID string) (*instance.Instance, error) {
-	instance, err := is.repo.FindByID(playbookID, ID)
+	path := instance.NewPath(env.EtcdPath, playbookID, ID)
+	instance, err := instance.FindByPath(is.store, path)
 	if err != nil {
 		return instance, err
 	}
@@ -160,7 +161,8 @@ func (is *InstanceService) Show(playbookID, ID string) (*instance.Instance, erro
 
 // AllWithPlaybookID returns all the instances for an specified playbook id
 func (is *InstanceService) AllWithPlaybookID(playbookID string) ([]*instance.Instance, error) {
-	return is.repo.FindByPlaybookID(playbookID)
+	playbookPath := NewPlaybookPath(env.EtcdPath, playbookID)
+	return instance.FindByPlaybookID(playbookPath)
 }
 
 // Delete removes an instance
@@ -170,7 +172,8 @@ func (is *InstanceService) Delete(i *instance.Instance) error {
 		return err
 	}
 
-	return is.repo.Delete(ii)
+	path := instance.NewPath(env.EtcdPath, i.PlaybookID, i.ID)
+	return instance.Delete(is.store, path)
 }
 
 func sendNotification(update bool, i *instance.Instance) error {

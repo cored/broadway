@@ -113,3 +113,28 @@ func TestSave(t *testing.T) {
 		assert.Equal(t, tc.ExpectedError, err, tc.Scenario)
 	}
 }
+
+func TestDelete(t *testing.T) {
+	testcases := []struct {
+		Scenario      string
+		Store         store.Store
+		Path          Path
+		ExpectedError error
+	}{
+		{
+			Scenario: "When successfully deleted from store",
+			Store: &store.FakeStore{
+				MockDelete: func(string) error {
+					return nil
+				},
+			},
+			Path:          NewPath("rootPath", "playbookId", "id"),
+			ExpectedError: nil,
+		},
+	}
+
+	for _, tc := range testcases {
+		err := Delete(tc.Store, tc.Path)
+		assert.Equal(t, tc.ExpectedError, err, tc.Scenario)
+	}
+}
