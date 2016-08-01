@@ -17,10 +17,18 @@ type SlackCommand interface {
 	Execute() (string, error)
 }
 
-type deployCommand struct {
+type unlockCommand struct {
 	pID string
 	ID  string
-	is  *InstanceService
+}
+
+func (c *unlockCommand) Execute() (string, error) {
+	path := instance.Path{env.EtcdPath, c.pID, c.ID}
+	i, err := instance.Unlock(etcdstore.New(), path)
+	if err != nil {
+		return "", err
+	}
+	return i.String(), nil
 }
 
 type lockCommand struct {
@@ -35,6 +43,12 @@ func (c *lockCommand) Execute() (string, error) {
 		return "", err
 	}
 	return i.String(), nil
+}
+
+type deployCommand struct {
+	pID string
+	ID  string
+	is  *InstanceService
 }
 
 func (c *deployCommand) Execute() (string, error) {
@@ -288,6 +302,11 @@ func BuildSlackCommand(payload string, is *InstanceService, playbooks map[string
 			return &helpCommand{}
 		}
 		return &lockCommand{pID: terms[1], ID: terms[2]}
+	case "unlock":
+		if len(terms) < 3 {
+			return &helpCommand{}
+		}
+		return &unlockCommand{pID: terms[1], ID: terms[2]}
 	default:
 		return &helpCommand{}
 	}

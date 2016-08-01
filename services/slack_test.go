@@ -375,7 +375,7 @@ func TestLockExecute(t *testing.T) {
 		)
 		// CreateOrUpdate always resets instance.Created so we can't mock it:
 		msg, err := command.Execute()
-		assert.IsType(t, testcase.ExpectedErr, err, testcase.Scenario)
+		assert.Equal(t, testcase.ExpectedErr, err, testcase.Scenario)
 		assert.Equal(t, testcase.ExpectedMsg, msg, testcase.Scenario)
 	}
 }
@@ -418,7 +418,7 @@ func TestUnLockExecute(t *testing.T) {
 		)
 		// CreateOrUpdate always resets instance.Created so we can't mock it:
 		msg, err := command.Execute()
-		assert.IsType(t, testcase.ExpectedErr, err, testcase.Scenario)
+		assert.Equal(t, testcase.ExpectedErr, err, testcase.Scenario)
 		assert.Equal(t, testcase.ExpectedMsg, msg, testcase.Scenario)
 	}
 }
