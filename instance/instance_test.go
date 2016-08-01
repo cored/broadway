@@ -324,7 +324,7 @@ func TestUnLock(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		instance, err := UnLock(tc.Store, tc.Path)
+		instance, err := Unlock(tc.Store, tc.Path)
 		assert.Equal(t, tc.ExpectedError, err, tc.Scenario)
 		assert.Equal(t, tc.ExpectedInstance, instance, tc.Scenario)
 	}
