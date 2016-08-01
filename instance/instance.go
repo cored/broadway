@@ -147,7 +147,7 @@ func Lock(store store.Store, path Path) (*Instance, error) {
 	return instance, nil
 }
 
-// UnLock an instance
+// Unlock an instance
 func Unlock(store store.Store, path Path) (*Instance, error) {
 	instance, err := FindByPath(store, path)
 	if err != nil {
