@@ -8,6 +8,13 @@ import (
 	"github.com/namely/broadway/store"
 )
 
+// NotLockedStatusError instance is not locked
+type NotLockedStatusError string
+
+func (e NotLockedStatusError) Error() string {
+	return fmt.Sprintf("broadway/instance: %s is not locked", string(e))
+}
+
 // NotFoundError instance not found error
 type NotFoundError string
 
@@ -133,6 +140,23 @@ func Lock(store store.Store, path Path) (*Instance, error) {
 		return nil, err
 	}
 	instance.Lock = true
+	err = Save(store, instance)
+	if err != nil {
+		return nil, err
+	}
+	return instance, nil
+}
+
+// UnLock an instance
+func UnLock(store store.Store, path Path) (*Instance, error) {
+	instance, err := FindByPath(store, path)
+	if err != nil {
+		return nil, err
+	}
+	if instance.Status != StatusLocked {
+		return nil, NotLockedStatusError(path.String())
+	}
+	instance.Status = StatusUnlocked
 	err = Save(store, instance)
 	if err != nil {
 		return nil, err
