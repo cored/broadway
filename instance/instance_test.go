@@ -179,7 +179,7 @@ func TestLock(t *testing.T) {
 		ExpectedInstance *Instance
 	}{
 		{
-			Scenario: "When an instance exist",
+			Scenario: "Lock: when an instance exist",
 			Store: &store.FakeStore{
 				MockValue: func(path string) string {
 					return `{"playbook_id":"test", "id": "id", "status": "deployed", "lock": false}`
@@ -193,7 +193,7 @@ func TestLock(t *testing.T) {
 			ExpectedInstance: &Instance{PlaybookID: "test", ID: "id", Status: StatusDeployed, Lock: true},
 		},
 		{
-			Scenario: "When an instance does not exist",
+			Scenario: "Lock: when an instance does not exist",
 			Store: &store.FakeStore{
 				MockValue: func(path string) string {
 					return ``
@@ -207,7 +207,7 @@ func TestLock(t *testing.T) {
 			ExpectedInstance: nil,
 		},
 		{
-			Scenario: "When instance have malformed data saved",
+			Scenario: "Lock: when instance have malformed data saved",
 			Store: &store.FakeStore{
 				MockValue: func(path string) string {
 					return `{play}`
@@ -221,7 +221,7 @@ func TestLock(t *testing.T) {
 			ExpectedInstance: nil,
 		},
 		{
-			Scenario: "When saving the instance with the new status failed",
+			Scenario: "Lock: when saving the instance with the new status failed",
 			Store: &store.FakeStore{
 				MockValue: func(path string) string {
 					return `{"playbook_id":"test", "id": "id", "status": "deployed"}`
@@ -243,7 +243,7 @@ func TestLock(t *testing.T) {
 	}
 }
 
-func TestUnLock(t *testing.T) {
+func TestUnlock(t *testing.T) {
 	testcases := []struct {
 		Scenario         string
 		Store            store.Store
@@ -252,10 +252,10 @@ func TestUnLock(t *testing.T) {
 		ExpectedInstance *Instance
 	}{
 		{
-			Scenario: "When an instance exist",
+			Scenario: "Unlock: when an instance exist and is locked",
 			Store: &store.FakeStore{
 				MockValue: func(path string) string {
-					return `{"playbook_id":"test", "id": "id", "status": "locked"}`
+					return `{"playbook_id":"test", "id": "id", "status": "deployed", "lock": true}`
 				},
 				MockSetValue: func(string, string) error {
 					return nil
@@ -263,10 +263,10 @@ func TestUnLock(t *testing.T) {
 			},
 			Path:             Path{"rootPath", "test", "id"},
 			ExpectedError:    nil,
-			ExpectedInstance: &Instance{PlaybookID: "test", ID: "id", Status: StatusUnlocked},
+			ExpectedInstance: &Instance{PlaybookID: "test", ID: "id", Status: StatusDeployed, Lock: false},
 		},
 		{
-			Scenario: "When an instance does not exist",
+			Scenario: "Unlock: when an instance does not exist",
 			Store: &store.FakeStore{
 				MockValue: func(path string) string {
 					return ``
@@ -280,7 +280,7 @@ func TestUnLock(t *testing.T) {
 			ExpectedInstance: nil,
 		},
 		{
-			Scenario: "When instance have malformed data saved",
+			Scenario: "Unlock: when instance have malformed data saved",
 			Store: &store.FakeStore{
 				MockValue: func(path string) string {
 					return `{play}`
@@ -294,10 +294,10 @@ func TestUnLock(t *testing.T) {
 			ExpectedInstance: nil,
 		},
 		{
-			Scenario: "When saving the instance with the new status failed",
+			Scenario: "Unlock: when saving the instance failed",
 			Store: &store.FakeStore{
 				MockValue: func(path string) string {
-					return `{"playbook_id":"test", "id": "id", "status": "locked"}`
+					return `{"playbook_id":"test", "id": "id", "status": "deployed", "lock": true}`
 				},
 				MockSetValue: func(string, string) error {
 					return errors.New("Failed to save the instance")
@@ -308,10 +308,10 @@ func TestUnLock(t *testing.T) {
 			ExpectedInstance: nil,
 		},
 		{
-			Scenario: "When status is not locked",
+			Scenario: "Unlock: when instance is not locked",
 			Store: &store.FakeStore{
 				MockValue: func(path string) string {
-					return `{"playbook_id":"test", "id": "id", "status": "deployed"}`
+					return `{"playbook_id":"test", "id": "id", "status": "deployed", "lock": false}`
 				},
 				MockSetValue: func(string, string) error {
 					return nil

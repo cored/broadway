@@ -124,8 +124,7 @@ func Save(store store.Store, instance *Instance) error {
 	if err != nil {
 		return err
 	}
-	err = store.SetValue(instance.Path.String(), encoded)
-	return err
+	return store.SetValue(instance.Path.String(), encoded)
 }
 
 // Delete an instance from the store
@@ -140,8 +139,7 @@ func Lock(store store.Store, path Path) (*Instance, error) {
 		return nil, err
 	}
 	instance.Lock = true
-	err = Save(store, instance)
-	if err != nil {
+	if err = Save(store, instance); err != nil {
 		return nil, err
 	}
 	return instance, nil
@@ -153,12 +151,11 @@ func Unlock(store store.Store, path Path) (*Instance, error) {
 	if err != nil {
 		return nil, err
 	}
-	if instance.Status != StatusLocked {
+	if !instance.Lock {
 		return nil, NotLockedStatusError(path.String())
 	}
-	instance.Status = StatusUnlocked
-	err = Save(store, instance)
-	if err != nil {
+	instance.Lock = false
+	if err = Save(store, instance); err != nil {
 		return nil, err
 	}
 	return instance, nil
