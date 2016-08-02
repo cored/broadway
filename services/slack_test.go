@@ -352,6 +352,7 @@ func TestLockExecute(t *testing.T) {
 				PlaybookID: "helloplaybook",
 				ID:         "lockmetest",
 				Status:     instance.StatusDeployed,
+				Lock:       false,
 				Vars:       map[string]string{"word": "phlegmatic", "bird": "albatross"},
 			},
 			"lock helloplaybook lockmetest",
@@ -394,7 +395,8 @@ func TestUnLockExecute(t *testing.T) {
 
 				PlaybookID: "helloplaybook",
 				ID:         "locktest",
-				Status:     instance.StatusLocked,
+				Status:     instance.StatusDeployed,
+				Lock:       true,
 				Vars:       map[string]string{"word": "phlegmatic", "bird": "albatross"},
 			},
 			"unlock helloplaybook locktest",
